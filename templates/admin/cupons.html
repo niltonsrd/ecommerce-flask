@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Cupons</h1>
+            <p>Gerencie descontos, períodos de uso e status dos cupons promocionais.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/cupons/novo" class="btn-admin">Novo Cupom</a>
+        </div>
+    </div>
+
+    {% if cupons %}
+    <div class="admin-list-grid">
+        {% for cupom in cupons %}
+        <article class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title-content">
+                    <h2>{{ cupom[1] }}</h2>
+
+                    <div class="admin-tags">
+                        <span class="admin-tag">Tipo: {{ cupom[2] }}</span>
+                        <span class="admin-tag">Valor: {{ cupom[3] }}</span>
+                    </div>
+
+                    {% if cupom[7] %}
+                    <span class="admin-status active">Ativo</span>
+                    {% else %}
+                    <span class="admin-status inactive">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="admin-meta-grid">
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Valor mínimo</span>
+                    <span class="admin-meta-value">{{ cupom[4] }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Limite de uso</span>
+                    <span class="admin-meta-value">{{ cupom[5] }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Usos atuais</span>
+                    <span class="admin-meta-value">{{ cupom[6] }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Período</span>
+                    <span class="admin-meta-value">
+                        {{ cupom[8] if cupom[8] else 'Sem início' }} — {{ cupom[9] if cupom[9] else 'Sem fim' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <a href="/admin/cupons/editar/{{ cupom[0] }}" class="btn-admin">Editar</a>
+                <a href="/admin/cupons/excluir/{{ cupom[0] }}" class="btn-admin-danger">Excluir</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">Nenhum cupom cadastrado.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

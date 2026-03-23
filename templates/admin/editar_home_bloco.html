@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-home-blocos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-page">
+
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Editar Bloco da Home</h1>
+            <p>Atualize o conteúdo do bloco e acompanhe o resultado em tempo real.</p>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="admin-form-card card-glass">
+
+        <div class="admin-form-layout">
+
+            <div class="admin-form-main">
+
+                <div class="admin-form-sections">
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section-header">
+                            <h2>Estrutura do bloco</h2>
+                            <p>Defina tipo, layout e posição na página.</p>
+                        </div>
+
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group">
+                                <label for="nome">Nome interno</label>
+                                <input type="text" name="nome" id="nome" value="{{ bloco[1] if bloco[1] else '' }}"
+                                    required>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="ordem">Ordem</label>
+                                <input type="number" name="ordem" id="ordem"
+                                    value="{{ bloco[15] if bloco[15] is not none else 0 }}" required>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="tipo_bloco">Tipo do bloco</label>
+                                <select name="tipo_bloco" id="tipo_bloco">
+                                    <option value="hero" {% if bloco[2]=='hero' %}selected{% endif %}>Hero principal
+                                    </option>
+                                    <option value="promo" {% if bloco[2]=='promo' %}selected{% endif %}>Bloco
+                                        promocional</option>
+                                    <option value="banner" {% if bloco[2]=='banner' %}selected{% endif %}>Banner
+                                    </option>
+                                    <option value="cta" {% if bloco[2]=='cta' %}selected{% endif %}>Chamada final
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="layout">Layout</label>
+                                <select name="layout" id="layout">
+                                    <option value="texto" {% if bloco[3]=='texto' %}selected{% endif %}>Somente texto
+                                    </option>
+                                    <option value="imagem" {% if bloco[3]=='imagem' %}selected{% endif %}>Somente imagem
+                                    </option>
+                                    <option value="imagem_texto" {% if bloco[3]=='imagem_texto' %}selected{% endif %}>
+                                        Imagem + texto</option>
+                                    <option value="fundo_texto" {% if bloco[3]=='fundo_texto' %}selected{% endif %}>
+                                        Imagem fundo + texto</option>
+                                </select>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="alinhamento_texto">Alinhamento do texto</label>
+                                <select name="alinhamento_texto" id="alinhamento_texto">
+                                    <option value="left" {% if bloco[14]=='left' %}selected{% endif %}>Esquerda</option>
+                                    <option value="center" {% if bloco[14]=='center' %}selected{% endif %}>Centro
+                                    </option>
+                                    <option value="right" {% if bloco[14]=='right' %}selected{% endif %}>Direita
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="ativo">Status</label>
+                                <select name="ativo" id="ativo">
+                                    <option value="true" {% if bloco[16] %}selected{% endif %}>Ativo</option>
+                                    <option value="false" {% if not bloco[16] %}selected{% endif %}>Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section-header">
+                            <h2>Conteúdo do bloco</h2>
+                            <p>Texto exibido na home.</p>
+                        </div>
+
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group admin-form-group-full">
+                                <label for="subtitulo">Subtítulo / Badge</label>
+                                <input type="text" name="subtitulo" id="subtitulo"
+                                    value="{{ bloco[5] if bloco[5] else '' }}">
+                            </div>
+
+                            <div class="admin-form-group admin-form-group-full">
+                                <label for="titulo">Título</label>
+                                <input type="text" name="titulo" id="titulo" value="{{ bloco[4] if bloco[4] else '' }}">
+                            </div>
+
+                            <div class="admin-form-group admin-form-group-full">
+                                <label for="descricao">Descrição</label>
+                                <textarea name="descricao" id="descricao"
+                                    rows="5">{{ bloco[6] if bloco[6] else '' }}</textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section-header">
+                            <h2>Imagem</h2>
+                            <p>Imagem usada no bloco.</p>
+                        </div>
+
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group admin-form-group-full">
+                                <label for="imagem">Nova imagem</label>
+                                <input type="file" name="imagem" id="imagem" accept="image/*">
+                                <span class="admin-field-hint">Envie outra imagem apenas se quiser substituir a
+                                    atual.</span>
+
+                                {% if bloco[7] %}
+                                <div class="admin-form-image-preview">
+                                    <img src="{{ url_for('static', filename='uploads/' + bloco[7]) }}"
+                                        alt="Imagem atual">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section-header">
+                            <h2>Botões</h2>
+                            <p>Links de ação do bloco.</p>
+                        </div>
+
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group">
+                                <label for="texto_botao">Texto botão principal</label>
+                                <input type="text" name="texto_botao" id="texto_botao"
+                                    value="{{ bloco[8] if bloco[8] else '' }}">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="link_botao">Link botão principal</label>
+                                <input type="text" name="link_botao" id="link_botao"
+                                    value="{{ bloco[9] if bloco[9] else '' }}">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="texto_botao_secundario">Texto botão secundário</label>
+                                <input type="text" name="texto_botao_secundario" id="texto_botao_secundario"
+                                    value="{{ bloco[10] if bloco[10] else '' }}">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="link_botao_secundario">Link botão secundário</label>
+                                <input type="text" name="link_botao_secundario" id="link_botao_secundario"
+                                    value="{{ bloco[11] if bloco[11] else '' }}">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section-header">
+                            <h2>Visual</h2>
+                            <p>Personalize fundo e cor do texto.</p>
+                        </div>
+
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group">
+                                <label for="cor_fundo">Cor de fundo</label>
+                                <input type="color" name="cor_fundo" id="cor_fundo"
+                                    value="{{ bloco[12] if bloco[12] else '#111111' }}">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="cor_texto">Cor do texto</label>
+                                <input type="color" name="cor_texto" id="cor_texto"
+                                    value="{{ bloco[13] if bloco[13] else '#ffffff' }}">
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn-primary">Salvar alterações</button>
+                    <a href="/admin/home-blocos" class="btn-secondary">Cancelar</a>
+                </div>
+
+            </div>
+
+            <aside class="admin-preview-panel">
+                <div class="admin-preview-header">
+                    <h2>Preview do bloco</h2>
+                    <p>Visual aproximado do que será exibido na home.</p>
+                </div>
+
+                <div class="admin-preview-stage">
+                    <div class="admin-preview-card" id="homeBlockPreview"
+                        data-tipo="{{ bloco[2] if bloco[2] else 'hero' }}"
+                        data-layout="{{ bloco[3] if bloco[3] else 'texto' }}" style="
+                            --preview-bg: {{ bloco[12] if bloco[12] else '#111111' }};
+                            --preview-text: {{ bloco[13] if bloco[13] else '#ffffff' }};
+                        ">
+                        <div class="admin-preview-media" id="previewMedia">
+                            {% if bloco[7] %}
+                            <img id="previewImage" src="{{ url_for('static', filename='uploads/' + bloco[7]) }}"
+                                alt="Preview">
+                            {% else %}
+                            <img id="previewImage" src="" alt="Preview" style="display: none;">
+                            {% endif %}
+                        </div>
+
+                        <div class="admin-preview-overlay" id="previewOverlay"
+                            data-align="{{ bloco[14] if bloco[14] else 'left' }}">
+                            <span class="admin-preview-badge" id="previewSubtitulo">
+                                {{ bloco[5] if bloco[5] else 'Subtítulo / Badge' }}
+                            </span>
+
+                            <h3 id="previewTitulo">
+                                {{ bloco[4] if bloco[4] else 'Título do bloco' }}
+                            </h3>
+
+                            <p id="previewDescricao">
+                                {{ bloco[6] if bloco[6] else 'Descrição do bloco exibida aqui para o admin visualizar o
+                                resultado antes de salvar.' }}
+                            </p>
+
+                            <div class="admin-preview-actions">
+                                <span class="admin-preview-btn primary" id="previewBotaoPrincipal">
+                                    {{ bloco[8] if bloco[8] else 'Botão principal' }}
+                                </span>
+
+                                <span class="admin-preview-btn secondary" id="previewBotaoSecundario">
+                                    {{ bloco[10] if bloco[10] else 'Botão secundário' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </form>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const campos = {
+            tipo: document.getElementById("tipo_bloco"),
+            layout: document.getElementById("layout"),
+            alinhamento: document.getElementById("alinhamento_texto"),
+            subtitulo: document.getElementById("subtitulo"),
+            titulo: document.getElementById("titulo"),
+            descricao: document.getElementById("descricao"),
+            imagem: document.getElementById("imagem"),
+            botao1: document.getElementById("texto_botao"),
+            botao2: document.getElementById("texto_botao_secundario"),
+            corFundo: document.getElementById("cor_fundo"),
+            corTexto: document.getElementById("cor_texto"),
+        };
+
+        const preview = {
+            card: document.getElementById("homeBlockPreview"),
+            media: document.getElementById("previewMedia"),
+            image: document.getElementById("previewImage"),
+            overlay: document.getElementById("previewOverlay"),
+            subtitulo: document.getElementById("previewSubtitulo"),
+            titulo: document.getElementById("previewTitulo"),
+            descricao: document.getElementById("previewDescricao"),
+            botao1: document.getElementById("previewBotaoPrincipal"),
+            botao2: document.getElementById("previewBotaoSecundario"),
+        };
+
+        function aplicarTexto(el, value, fallback) {
+            if (!el) return;
+            el.textContent = value && value.trim() ? value : fallback;
+        }
+
+        function atualizarPreview() {
+            const tipo = campos.tipo.value;
+            const layout = campos.layout.value;
+            const alinhamento = campos.alinhamento.value;
+            const corFundo = campos.corFundo.value || "#111111";
+            const corTexto = campos.corTexto.value || "#ffffff";
+
+            preview.card.setAttribute("data-tipo", tipo);
+            preview.card.setAttribute("data-layout", layout);
+            preview.overlay.setAttribute("data-align", alinhamento);
+
+            preview.card.style.setProperty("--preview-bg", corFundo);
+            preview.card.style.setProperty("--preview-text", corTexto);
+
+            aplicarTexto(preview.subtitulo, campos.subtitulo.value, "Subtítulo / Badge");
+            aplicarTexto(preview.titulo, campos.titulo.value, "Título do bloco");
+            aplicarTexto(preview.descricao, campos.descricao.value, "Descrição do bloco exibida aqui para o admin visualizar o resultado antes de salvar.");
+            aplicarTexto(preview.botao1, campos.botao1.value, "Botão principal");
+            aplicarTexto(preview.botao2, campos.botao2.value, "Botão secundário");
+
+            preview.botao1.style.display = campos.botao1.value.trim() ? "inline-flex" : "none";
+            preview.botao2.style.display = campos.botao2.value.trim() ? "inline-flex" : "none";
+
+            if (!campos.botao1.value.trim() && !campos.botao2.value.trim()) {
+                preview.botao1.style.display = "inline-flex";
+                preview.botao1.textContent = "Botão principal";
+            }
+
+            if (layout === "imagem") {
+                preview.overlay.classList.add("is-hidden-text");
+            } else {
+                preview.overlay.classList.remove("is-hidden-text");
+            }
+
+            if (layout === "texto") {
+                preview.media.classList.add("is-hidden-media");
+                preview.card.classList.add("is-text-only");
+            } else {
+                preview.media.classList.remove("is-hidden-media");
+                preview.card.classList.remove("is-text-only");
+            }
+
+            if (layout === "fundo_texto") {
+                preview.card.classList.add("is-background-text");
+            } else {
+                preview.card.classList.remove("is-background-text");
+            }
+
+            if (tipo === "cta") {
+                preview.card.classList.add("is-cta");
+            } else {
+                preview.card.classList.remove("is-cta");
+            }
+        }
+
+        if (campos.imagem) {
+            campos.imagem.addEventListener("change", function () {
+                const file = this.files && this.files[0];
+
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.image.src = e.target.result;
+                    preview.image.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        Object.values(campos).forEach((campo) => {
+            if (!campo || campo.type === "file") return;
+            campo.addEventListener("input", atualizarPreview);
+            campo.addEventListener("change", atualizarPreview);
+        });
+
+        atualizarPreview();
+    });
+</script>
+
+{% endblock %}

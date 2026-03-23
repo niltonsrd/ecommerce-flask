@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Modalidades de Entrega</h1>
+            <p>Configure tipos de entrega, cobertura, preço e prazo para cada modalidade.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/modalidades-entrega/nova" class="btn-admin">Nova Modalidade</a>
+        </div>
+    </div>
+
+    {% if modalidades %}
+    <div class="admin-list-grid">
+        {% for modalidade in modalidades %}
+        <article class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title-content">
+                    <h2>{{ modalidade[1] }}</h2>
+                    <div class="admin-tags">
+                        <span class="admin-tag">{{ modalidade[2] }}</span>
+                    </div>
+
+                    {% if modalidade[8] %}
+                    <span class="admin-status active">Ativo</span>
+                    {% else %}
+                    <span class="admin-status inactive">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="admin-meta-grid">
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Cidade</span>
+                    <span class="admin-meta-value">{{ modalidade[3] if modalidade[3] else 'Geral' }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Estado</span>
+                    <span class="admin-meta-value">{{ modalidade[4] if modalidade[4] else 'Geral' }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Valor</span>
+                    <span class="admin-meta-value">R$ {{ "%.2f"|format(modalidade[5]) }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Prazo em horas</span>
+                    <span class="admin-meta-value">{{ modalidade[6] if modalidade[6] else '-' }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Prazo em dias</span>
+                    <span class="admin-meta-value">{{ modalidade[7] if modalidade[7] else '-' }}</span>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <a href="/admin/modalidades-entrega/editar/{{ modalidade[0] }}" class="btn-admin-outline">Editar</a>
+                <a href="/admin/modalidades-entrega/excluir/{{ modalidade[0] }}" class="btn-admin-danger">Excluir</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">Nenhuma modalidade de entrega cadastrada.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

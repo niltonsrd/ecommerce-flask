@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Meu carrinho</h2>
+                        <p class="account-section-description">
+                            Confira os itens selecionados antes de seguir para o checkout.
+                        </p>
+                    </div>
+                </div>
+
+                {% if itens %}
+                <div class="carrinho-layout conta-carrinho-layout">
+
+                    <div class="carrinho-lista">
+                        {% for item in itens %}
+                        <article class="carrinho-card">
+
+                            <div class="carrinho-imagem">
+                                {% if item[7] %}
+                                <img src="/static/uploads/{{ item[7] }}" alt="{{ item[3] }}">
+                                {% else %}
+                                <div class="carrinho-sem-imagem">
+                                    <span>Sem imagem</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="carrinho-info">
+                                <h3>{{ item[3] }}</h3>
+
+                                <div class="carrinho-meta">
+                                    <span><strong>Tamanho:</strong> {{ item[6] }}</span>
+                                    <span><strong>Quantidade:</strong> {{ item[5] }}</span>
+                                </div>
+
+                                <div class="carrinho-precos">
+                                    <p class="preco-unitario">
+                                        <span>Preço unitário</span>
+                                        <strong>R$ {{ "%.2f"|format(item[4]) }}</strong>
+                                    </p>
+
+                                    <p class="preco-subtotal">
+                                        <span>Subtotal</span>
+                                        <strong>R$ {{ "%.2f"|format(item[4] * item[5]) }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="carrinho-acoes">
+                                <a href="/remover-item/{{ item[0] }}" class="btn-secondary carrinho-remover-btn">
+                                    Remover
+                                </a>
+                            </div>
+
+                        </article>
+                        {% endfor %}
+                    </div>
+
+                    <aside class="carrinho-resumo">
+                        <div class="resumo-card">
+                            <span class="resumo-tag">Resumo do pedido</span>
+
+                            <div class="resumo-linha">
+                                <span>Total dos produtos</span>
+                                <strong>R$ {{ "%.2f"|format(total) }}</strong>
+                            </div>
+
+                            <p class="resumo-observacao">
+                                O frete e possíveis descontos serão calculados no checkout.
+                            </p>
+
+                            <div class="resumo-actions">
+                                <a href="/produtos" class="btn-secondary">Continuar comprando</a>
+                                <a href="/checkout" class="btn-primary">Continuar para o checkout</a>
+                            </div>
+                        </div>
+                    </aside>
+
+                </div>
+                {% else %}
+                <div class="carrinho-vazio account-content-block">
+                    <div class="carrinho-vazio-box">
+                        <span class="section-kicker">Sua sacola</span>
+                        <h3>Seu carrinho está vazio</h3>
+                        <p>Adicione produtos para continuar sua compra.</p>
+                        <a href="/produtos" class="btn-primary">Voltar para a loja</a>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

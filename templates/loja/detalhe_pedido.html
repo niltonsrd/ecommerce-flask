@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detalhes-pedido.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="pedido-detalhe-page">
+
+    {% set pedido = itens[0] %}
+
+    <div class="pedido-detalhe-header">
+        <div>
+            <span class="section-kicker">Minha conta</span>
+            <h1>Detalhes do Pedido</h1>
+            <p>Veja o status atual, resumo financeiro e todos os itens incluídos nesta compra.</p>
+        </div>
+    </div>
+
+    <section class="pedido-resumo-card">
+        <div class="pedido-resumo-top">
+            <div class="pedido-info-principal">
+                <h2>Pedido #{{ pedido[0] }}</h2>
+
+                <div class="pedido-info-lista">
+                    <p><strong>Data:</strong> {{ pedido[3] }}</p>
+
+                    <p>
+                        <strong>Status:</strong>
+
+                        {% if pedido[1] == "AGUARDANDO_PAGAMENTO" %}
+                        <span class="pedido-status aguardando">Aguardando pagamento</span>
+                        {% elif pedido[1] == "PAGO" %}
+                        <span class="pedido-status pago">Pago</span>
+                        {% elif pedido[1] == "EM_SEPARACAO" %}
+                        <span class="pedido-status separacao">Em separação</span>
+                        {% elif pedido[1] == "ENVIADO" %}
+                        <span class="pedido-status enviado">Enviado</span>
+                        {% elif pedido[1] == "ENTREGUE" %}
+                        <span class="pedido-status entregue">Entregue</span>
+                        {% elif pedido[1] == "CANCELADO" %}
+                        <span class="pedido-status cancelado">Cancelado</span>
+                        {% elif pedido[1] == "FALHA_PAGAMENTO" %}
+                        <span class="pedido-status cancelado">Falha no pagamento</span>
+                        {% else %}
+                        <span class="pedido-status neutro">{{ pedido[1] }}</span>
+                        {% endif %}
+                    </p>
+
+                    <p><strong>Forma de pagamento:</strong> {{ pedido[11] or "Não informada" }}</p>
+                    <p><strong>Prazo de entrega:</strong> {{ pedido[12] or "Não informado" }}</p>
+                </div>
+            </div>
+
+            <div class="pedido-financeiro-box">
+                <h3>Resumo financeiro</h3>
+                <p><strong>Subtotal:</strong> <span>R$ {{ "%.2f"|format(pedido[8] or 0) }}</span></p>
+                <p><strong>Desconto:</strong> <span>R$ {{ "%.2f"|format(pedido[9] or 0) }}</span></p>
+                <p><strong>Frete:</strong> <span>R$ {{ "%.2f"|format(pedido[10] or 0) }}</span></p>
+
+                <div class="pedido-divider"></div>
+
+                <p class="pedido-total">
+                    <strong>Total:</strong>
+                    <span>R$ {{ "%.2f"|format(pedido[2] or 0) }}</span>
+                </p>
+            </div>
+        </div>
+
+        {% if pedido[13] %}
+        <div class="pedido-observacoes-box">
+            <strong>Observações do pedido</strong>
+            <p>{{ pedido[13] }}</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="pedido-itens-card">
+        <div class="pedido-section-heading">
+            <span class="section-kicker">Itens</span>
+            <h2>Itens do Pedido</h2>
+        </div>
+
+        <div class="pedido-itens-lista">
+            {% for item in itens %}
+            <article class="pedido-item">
+                <div class="pedido-item-info">
+                    <h3>{{ item[4] }}</h3>
+                    <p><strong>Tamanho:</strong> {{ item[7] or "Não informado" }}</p>
+                    <p><strong>Quantidade:</strong> {{ item[5] }}</p>
+                    <p><strong>Preço unitário:</strong> R$ {{ "%.2f"|format(item[6] or 0) }}</p>
+                </div>
+
+                <div class="pedido-item-total">
+                    R$ {{ "%.2f"|format((item[6] or 0) * (item[5] or 0)) }}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% if pedido[1] == "AGUARDANDO_PAGAMENTO" %}
+        <div class="pedido-back-action" style="margin-bottom: 16px;">
+            <button type="button" class="btn-primary" onclick="window.location.href='/checkout/pagamento/{{ pedido[0] }}'">
+                Pagar agora
+            </button>
+        </div>
+        {% endif %}
+    </section>
+
+    <div class="pedido-back-action">
+        <a href="/meus-pedidos" class="btn-primary">Voltar para meus pedidos</a>
+    </div>
+
+</section>
+
+{% endblock %}

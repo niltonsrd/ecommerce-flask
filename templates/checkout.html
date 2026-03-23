@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="checkout-container" data-cidade-loja="{{ cidade_loja|lower }}">
+        <div class="checkout-top">
+            <div class="checkout-title-wrap">
+                <span class="checkout-eyebrow">Finalização da compra</span>
+                <h1>Checkout</h1>
+                <p>Revise seus dados, escolha a entrega e finalize seu pedido com segurança.</p>
+            </div>
+
+            <div class="checkout-steps">
+                <div class="checkout-step active">
+                    <span class="checkout-step-number">1</span>
+                    <span class="checkout-step-label">Endereço</span>
+                </div>
+                <div class="checkout-step active">
+                    <span class="checkout-step-number">2</span>
+                    <span class="checkout-step-label">Entrega</span>
+                </div>
+                <div class="checkout-step active">
+                    <span class="checkout-step-number">3</span>
+                    <span class="checkout-step-label">Pagamento</span>
+                </div>
+                <div class="checkout-step active">
+                    <span class="checkout-step-number">4</span>
+                    <span class="checkout-step-label">Revisão</span>
+                </div>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="checkout-alerts">
+            {% for category, message in messages %}
+            <div class="checkout-flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form action="/checkout/finalizar" method="POST" id="checkout-form">
+            <div class="checkout-layout">
+
+                <div class="checkout-main">
+
+                    <section class="checkout-card" id="checkout-endereco-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <span class="checkout-section-tag">Etapa 1</span>
+                                <h2>Endereço de entrega</h2>
+                            </div>
+                            <p id="checkout-endereco-descricao">
+                                Escolha um endereço salvo para continuar.
+                            </p>
+                        </div>
+
+                        {% if enderecos %}
+                        <div class="checkout-address-list" id="checkout-address-list">
+                            {% for endereco in enderecos %}
+                            <label class="checkout-option-card checkout-address-card">
+                                <input type="radio" name="endereco_id" value="{{ endereco.id }}"
+                                    class="checkout-address-radio" data-cidade="{{ (endereco.cidade or '')|lower }}"
+                                    data-estado="{{ (endereco.estado or '')|lower }}" {% if endereco.principal
+                                    %}checked{% endif %}>
+
+                                <div class="checkout-option-content">
+                                    <div class="checkout-option-title-row">
+                                        <strong>{{ endereco.nome_destinatario }}</strong>
+                                        {% if endereco.principal %}
+                                        <span class="checkout-badge">Principal</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="checkout-option-text">
+                                        {{ endereco.logradouro }}, {{ endereco.numero }}
+                                        {% if endereco.complemento %} - {{ endereco.complemento }}{% endif %}
+                                    </div>
+
+                                    <div class="checkout-option-text">
+                                        {{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}
+                                    </div>
+
+                                    <div class="checkout-option-text">
+                                        CEP: {{ endereco.cep }}
+                                    </div>
+
+                                    {% if endereco.referencia %}
+                                    <div class="checkout-option-text">
+                                        Referência: {{ endereco.referencia }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="checkout-new-address-actions-inline">
+                            <a href="/enderecos/novo" class="checkout-btn-secundario">
+                                + Cadastrar novo endereço
+                            </a>
+
+                            <a href="/enderecos" class="checkout-btn-secundario">
+                                Gerenciar endereços
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="checkout-info-box checkout-empty-address-box">
+                            Você ainda não possui endereços cadastrados.
+                        </div>
+
+                        <div class="checkout-new-address-actions-inline">
+                            <a href="/enderecos/novo" class="checkout-btn-secundario">
+                                + Cadastrar primeiro endereço
+                            </a>
+                        </div>
+                        {% endif %}
+                    </section>
+
+                    <section class="checkout-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <span class="checkout-section-tag">Etapa 2</span>
+                                <h2>Modalidade de entrega</h2>
+                            </div>
+                            <p>As opções mudam conforme a cidade do cliente e a configuração da loja.</p>
+                        </div>
+
+                        <div class="checkout-option-list" id="checkout-modalidades-list">
+                            {% for modalidade in modalidades %}
+                            <label class="checkout-option-card checkout-modalidade-card"
+                                data-tipo="{{ modalidade.tipo }}">
+                                <input type="radio" name="modalidade_entrega_id" value="{{ modalidade.id }}"
+                                    class="checkout-modalidade-radio" data-valor="{{ modalidade.valor }}"
+                                    data-nome="{{ modalidade.nome }}" data-prazo="{{ modalidade.prazo }}"
+                                    data-tipo="{{ modalidade.tipo }}">
+
+                                <div class="checkout-option-content">
+                                    <div class="checkout-option-title-row">
+                                        <strong>{{ modalidade.nome }}</strong>
+                                    </div>
+                                    <div class="checkout-option-text">Prazo: {{ modalidade.prazo }}</div>
+                                    <div class="checkout-option-price">Frete: R$ {{ '%.2f'|format(modalidade.valor) }}
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="checkout-info-box" id="checkout-modalidade-status">
+                            Selecione um endereço para visualizar as modalidades corretas.
+                        </div>
+                    </section>
+
+                    <section class="checkout-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <span class="checkout-section-tag">Etapa 3</span>
+                                <h2>Pagamento</h2>
+                            </div>
+                            <p>Escolha a forma de pagamento para finalizar sua compra.</p>
+                        </div>
+
+                        <div class="checkout-option-list checkout-payment-list">
+                            <label class="checkout-option-card">
+                                <input type="radio" name="forma_pagamento" value="PIX">
+                                <div class="checkout-option-content">
+                                    <div class="checkout-option-title-row">
+                                        <strong>PIX</strong>
+                                    </div>
+                                    <div class="checkout-option-text">Pagamento rápido e prático.</div>
+                                </div>
+                            </label>
+
+                            <label class="checkout-option-card">
+                                <input type="radio" name="forma_pagamento" value="CARTAO">
+                                <div class="checkout-option-content">
+                                    <div class="checkout-option-title-row">
+                                        <strong>Cartão</strong>
+                                    </div>
+                                    <div class="checkout-option-text">Estrutura pronta para integração.</div>
+                                </div>
+                            </label>
+
+                            <label class="checkout-option-card">
+                                <input type="radio" name="forma_pagamento" value="BOLETO">
+                                <div class="checkout-option-content">
+                                    <div class="checkout-option-title-row">
+                                        <strong>Boleto</strong>
+                                    </div>
+                                    <div class="checkout-option-text">Estrutura pronta para integração.</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkout-form-group checkout-observacoes-group">
+                            <label for="observacoes">Observações do pedido</label>
+                            <textarea id="observacoes" name="observacoes"
+                                placeholder="Ex.: entregar à tarde, portaria, bloco, etc."></textarea>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="checkout-sidebar">
+                    <section class="checkout-card checkout-resumo-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <span class="checkout-section-tag">Etapa 4</span>
+                                <h2>Resumo do pedido</h2>
+                            </div>
+                            <p>Revise seus itens antes de concluir.</p>
+                        </div>
+
+                        <div class="checkout-items">
+                            {% for item in itens %}
+                            <div class="checkout-resumo-item">
+                                <div class="checkout-resumo-image">
+                                    {% if item.imagem_url %}
+                                    <img src="/static/uploads/{{ item.imagem_url }}" alt="{{ item.nome }}">
+                                    {% else %}
+                                    <img src="/static/uploads/sem-imagem.png" alt="{{ item.nome }}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="checkout-resumo-info">
+                                    <h4>{{ item.nome }}</h4>
+                                    <div class="checkout-item-meta">Tamanho: {{ item.tamanho_nome }}</div>
+                                    <div class="checkout-item-meta">Quantidade: {{ item.quantidade }}</div>
+                                    <div class="checkout-item-price">R$ {{ '%.2f'|format(item.subtotal) }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="checkout-form-group checkout-cupom-group">
+                            <label for="cupom_codigo">Cupom</label>
+                            <div class="checkout-cupom-row">
+                                <input type="text" id="cupom_codigo" name="cupom_codigo" placeholder="Digite seu cupom">
+                                <button type="button" id="checkout-aplicar-cupom" class="checkout-btn-secundario">
+                                    Aplicar
+                                </button>
+                            </div>
+                            <small class="checkout-helper-text" id="checkout-cupom-status">
+                                O cupom será validado no fechamento do pedido.
+                            </small>
+                        </div>
+
+                        <div class="checkout-totals">
+                            <div class="checkout-total-line">
+                                <span>Subtotal</span>
+                                <strong id="checkout-subtotal" data-subtotal="{{ '%.2f'|format(subtotal) }}">
+                                    R$ {{ '%.2f'|format(subtotal) }}
+                                </strong>
+                            </div>
+
+                            <div class="checkout-total-line">
+                                <span>Desconto</span>
+                                <strong id="checkout-desconto-valor">R$ 0,00</strong>
+                            </div>
+
+                            <div class="checkout-total-line">
+                                <span>Frete</span>
+                                <strong id="checkout-frete">R$ 0,00</strong>
+                            </div>
+
+                            <div class="checkout-total-line checkout-total-line-highlight">
+                                <span>Entrega selecionada</span>
+                                <strong id="checkout-modalidade-nome">Selecione uma modalidade</strong>
+                            </div>
+
+                            <div class="checkout-total-line checkout-total-line-highlight">
+                                <span>Prazo</span>
+                                <strong id="checkout-prazo">Selecione uma modalidade</strong>
+                            </div>
+
+                            <div class="checkout-total-line checkout-total-line-final">
+                                <span>Total</span>
+                                <span id="checkout-total-geral">R$ {{ '%.2f'|format(total) }}</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="checkout-btn-finalizar" {% if not enderecos %}disabled{% endif %}>
+                            Finalizar compra
+                        </button>
+                    </section>
+                </aside>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/modalidade-entrega.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Nova Modalidade de Entrega</h1>
+            <p>Configure uma nova forma de entrega com regras de cobertura, prazo e valor.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/modalidades-entrega" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" class="admin-form">
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group admin-form-group-full">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Entrega Expressa" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo">
+                        <option value="retirada">Retirada</option>
+                        <option value="imediata">Imediata</option>
+                        <option value="normal">Normal</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor">Valor (R$)</label>
+                    <input type="number" id="valor" name="valor" step="0.01" min="0" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" placeholder="Opcional">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="estado">Estado</label>
+                    <input type="text" id="estado" name="estado" placeholder="Ex: BA">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="prazo_horas">Prazo em horas</label>
+                    <input type="number" id="prazo_horas" name="prazo_horas" min="0">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="prazo_dias">Prazo em dias</label>
+                    <input type="number" id="prazo_dias" name="prazo_dias" min="0">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="ativo">Status</label>
+                    <select id="ativo" name="ativo">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/modalidades-entrega" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Salvar Modalidade</button>
+            </div>
+
+        </form>
+    </section>
+</section>
+
+{% endblock %}

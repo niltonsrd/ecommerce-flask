@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="home-dynamic">
+
+    {% for bloco in blocos_home %}
+
+    {% if bloco[2] == 'hero' %}
+    <section class="home-block hero-block layout-{{ bloco[3] }} {% if bloco[13] %}has-custom-text{% endif %}" {% if
+        bloco[12] %} style="--bloco-bg: {{ bloco[12] }};" {% endif %}>
+        <div class="hero-block-content align-{{ bloco[14] if bloco[14] else 'left' }}">
+            {% if bloco[5] %}
+            <span class="hero-badge">{{ bloco[5] }}</span>
+            {% endif %}
+
+            {% if bloco[4] %}
+            <h1 {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[4] }}
+            </h1>
+            {% endif %}
+
+            {% if bloco[6] %}
+            <p {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[6] }}
+            </p>
+            {% endif %}
+
+            {% if bloco[8] or bloco[10] %}
+            <div class="hero-block-actions">
+                {% if bloco[8] and bloco[9] %}
+                <a href="{{ bloco[9] }}" class="btn-primary">{{ bloco[8] }}</a>
+                {% endif %}
+
+                {% if bloco[10] and bloco[11] %}
+                <a href="{{ bloco[11] }}" class="btn-secondary">{{ bloco[10] }}</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if bloco[7] %}
+        <div class="hero-block-media">
+            <img src="/static/uploads/{{ bloco[7] }}" alt="{{ bloco[4] if bloco[4] else bloco[1] }}">
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if bloco[2] == 'promo' %}
+    <section class="home-block promo-block layout-{{ bloco[3] }}" {% if bloco[12] %}
+        style="--bloco-bg: {{ bloco[12] }};" {% endif %}>
+        {% if bloco[7] %}
+        <div class="promo-block-media">
+            <img src="/static/uploads/{{ bloco[7] }}" alt="{{ bloco[4] if bloco[4] else bloco[1] }}">
+        </div>
+        {% endif %}
+
+        <div class="promo-block-overlay align-{{ bloco[14] if bloco[14] else 'left' }}">
+            {% if bloco[5] %}
+            <span>{{ bloco[5] }}</span>
+            {% endif %}
+
+            {% if bloco[4] %}
+            <h2 {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[4] }}
+            </h2>
+            {% endif %}
+
+            {% if bloco[6] %}
+            <p {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[6] }}
+            </p>
+            {% endif %}
+
+            {% if bloco[8] and bloco[9] %}
+            <a href="{{ bloco[9] }}" class="btn-primary">{{ bloco[8] }}</a>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if bloco[2] == 'banner' %}
+    <section class="home-block banner-block layout-{{ bloco[3] }}" {% if bloco[12] %}
+        style="--bloco-bg: {{ bloco[12] }};" {% endif %}>
+        {% if bloco[7] %}
+        {% if bloco[9] %}
+        <a href="{{ bloco[9] }}" class="banner-block-link">
+            {% endif %}
+
+            <img src="/static/uploads/{{ bloco[7] }}" alt="{{ bloco[4] if bloco[4] else bloco[1] }}">
+
+            {% if bloco[4] or bloco[6] or bloco[5] %}
+            <div class="banner-block-overlay align-{{ bloco[14] if bloco[14] else 'left' }}">
+                {% if bloco[5] %}
+                <span>{{ bloco[5] }}</span>
+                {% endif %}
+
+                {% if bloco[4] %}
+                <h2 {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                    {{ bloco[4] }}
+                </h2>
+                {% endif %}
+
+                {% if bloco[6] %}
+                <p {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                    {{ bloco[6] }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if bloco[9] %}
+        </a>
+        {% endif %}
+        {% else %}
+        <div class="banner-block-empty">
+            {% if bloco[5] %}
+            <span class="hero-badge">{{ bloco[5] }}</span>
+            {% endif %}
+
+            {% if bloco[4] %}
+            <h2 {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[4] }}
+            </h2>
+            {% endif %}
+
+            {% if bloco[6] %}
+            <p {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[6] }}
+            </p>
+            {% endif %}
+
+            {% if bloco[8] and bloco[9] %}
+            <a href="{{ bloco[9] }}" class="btn-primary">{{ bloco[8] }}</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if bloco[2] == 'cta' %}
+    <section class="home-block cta-block" {% if bloco[12] %} style="--bloco-bg: {{ bloco[12] }};" {% endif %}>
+        <div class="cta-block-content align-{{ bloco[14] if bloco[14] else 'left' }}">
+            {% if bloco[5] %}
+            <span class="section-kicker">{{ bloco[5] }}</span>
+            {% endif %}
+
+            {% if bloco[4] %}
+            <h2 {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[4] }}
+            </h2>
+            {% endif %}
+
+            {% if bloco[6] %}
+            <p {% if bloco[13] %}style="color: {{ bloco[13] }};" {% endif %}>
+                {{ bloco[6] }}
+            </p>
+            {% endif %}
+
+            <div class="cta-block-actions">
+                {% if bloco[8] and bloco[9] %}
+                <a href="{{ bloco[9] }}" class="btn-primary">{{ bloco[8] }}</a>
+                {% endif %}
+
+                {% if bloco[10] and bloco[11] %}
+                <a href="{{ bloco[11] }}" class="btn-secondary">{{ bloco[10] }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% endfor %}
+
+    <section class="categories-section">
+        <div class="section-header">
+            <span class="section-kicker">Categorias</span>
+            <h2>Explore a loja por categoria</h2>
+            <p>Navegue pelas categorias em destaque da sua loja.</p>
+        </div>
+
+        <div class="categories-grid categories-grid-strong">
+            {% for categoria in menu_categorias %}
+            <a href="/produtos?categoria={{ categoria[0] }}" class="category-card strong">
+                <div class="category-card-bg">
+                    {% if categoria[2] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ categoria[2]) }}" alt="{{ categoria[1] }}">
+                    {% else %}
+                    <div class="category-card-placeholder"></div>
+                    {% endif %}
+                </div>
+        
+                <div class="category-card-overlay"></div>
+        
+                <div class="category-card-content">
+                    <span class="category-label">Categoria</span>
+                    <h3>{{ categoria[1] }}</h3>
+                    <span class="category-link">Explorar agora</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="featured-products-section">
+        <div class="section-header">
+            <span class="section-kicker">Destaques</span>
+            <h2>Produtos em destaque</h2>
+            <p>Uma seleção de produtos para ganhar atenção logo no primeiro acesso.</p>
+        </div>
+
+        <div class="featured-grid">
+            {% for produto in produtos %}
+            <article class="product-card product-card-strong">
+                <a href="/produto/{{ produto[0] }}" class="product-image-wrap">
+                    {% if produto[3] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ produto[3]) }}" alt="{{ produto[1] }}">
+                    {% else %}
+                    <div class="product-image-empty">Sem imagem</div>
+                    {% endif %}
+                </a>
+        
+                <div class="product-info">
+                    <h3>{{ produto[1] }}</h3>
+                    <p class="product-price">R$ {{ "%.2f"|format(produto[2]) }}</p>
+        
+                    <div class="product-actions">
+                        <a href="/produto/{{ produto[0] }}" class="btn-product-main">Ver produto</a>
+                        <a href="/favoritos" class="btn-product-ghost">Favoritar</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const observerOptions = { threshold: 0.1 };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.home-block, .categories-section, .featured-products-section').forEach((el) => {
+            el.classList.add('reveal-hidden');
+            observer.observe(el);
+        });
+    });
+</script>
+
+{% endblock %}

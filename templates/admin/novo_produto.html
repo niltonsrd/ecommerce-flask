@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/novo-produto.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Novo Produto</h1>
+            <p>Cadastre um novo produto no catálogo da loja com informações principais, categoria, marca e imagem.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/produtos" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" enctype="multipart/form-data" class="admin-form">
+            <div class="admin-form-grid">
+                <div class="admin-form-group admin-form-group-full">
+                    <label for="nome">Nome do produto</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Tênis Casual Masculino" required>
+                </div>
+
+                <div class="admin-form-group admin-form-group-full">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="6"
+                        placeholder="Descreva o produto, materiais, diferenciais, estilo, acabamento..."></textarea>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="preco">Preço</label>
+                    <input type="number" id="preco" name="preco" step="0.01" min="0" placeholder="Ex: 199.90" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Selecione uma categoria</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria[0] }}">{{ categoria[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="marca">Marca</label>
+                    <select id="marca" name="marca" required>
+                        <option value="">Selecione uma marca</option>
+                        {% for marca in marcas %}
+                        <option value="{{ marca[0] }}">{{ marca[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="imagem">Imagem principal</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*">
+                    <small>Envie a imagem principal do produto.</small>
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/produtos" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Salvar Produto</button>
+            </div>
+        </form>
+    </section>
+</section>
+
+{% endblock %}

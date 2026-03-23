@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/favoritos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Meus Favoritos</h2>
+                        <p class="account-section-description">
+                            Salve seus produtos preferidos para acompanhar depois ou comprar mais rápido.
+                        </p>
+                    </div>
+                </div>
+
+                {% if favoritos %}
+                <div class="favoritos-grid account-content-block">
+                    {% for favorito in favoritos %}
+                    <article class="favorito-card">
+                        <div class="favorito-info">
+                            <span class="favorito-badge">Favorito</span>
+                            <h3>{{ favorito[2] }}</h3>
+
+                            <p class="favorito-preco">
+                                R$ {{ "%.2f"|format(favorito[3]) }}
+                            </p>
+                        </div>
+
+                        <div class="favorito-actions">
+                            <a href="/produto/{{ favorito[1] }}" class="btn-primary">
+                                Ver produto
+                            </a>
+
+                            <a href="/remover-favorito/{{ favorito[0] }}" class="btn-secondary favorito-remove-btn">
+                                Remover
+                            </a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="favoritos-empty account-content-block">
+                    <span class="section-kicker">Sem favoritos</span>
+                    <h3>Você ainda não favoritou nenhum produto</h3>
+                    <p>Quando você favoritar produtos, eles aparecerão aqui para acesso rápido.</p>
+
+                    <a href="/produtos" class="btn-primary">Explorar produtos</a>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

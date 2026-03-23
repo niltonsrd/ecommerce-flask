@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/modalidade-entrega.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Editar Modalidade de Entrega</h1>
+            <p>Atualize as configurações da modalidade, incluindo tipo, cobertura, prazo e valor.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/modalidades-entrega" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" class="admin-form">
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group admin-form-group-full">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" value="{{ modalidade[1] }}" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo">
+                        <option value="retirada" {% if modalidade[2]=='retirada' %}selected{% endif %}>Retirada</option>
+                        <option value="imediata" {% if modalidade[2]=='imediata' %}selected{% endif %}>Imediata</option>
+                        <option value="normal" {% if modalidade[2]=='normal' %}selected{% endif %}>Normal</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor">Valor (R$)</label>
+                    <input type="number" id="valor" name="valor" step="0.01" min="0" value="{{ modalidade[5] }}"
+                        required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" value="{{ modalidade[3] if modalidade[3] else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="estado">Estado</label>
+                    <input type="text" id="estado" name="estado" value="{{ modalidade[4] if modalidade[4] else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="prazo_horas">Prazo em horas</label>
+                    <input type="number" id="prazo_horas" name="prazo_horas" min="0"
+                        value="{{ modalidade[6] if modalidade[6] else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="prazo_dias">Prazo em dias</label>
+                    <input type="number" id="prazo_dias" name="prazo_dias" min="0"
+                        value="{{ modalidade[7] if modalidade[7] else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="ativo">Status</label>
+                    <select id="ativo" name="ativo">
+                        <option value="true" {% if modalidade[8] %}selected{% endif %}>Ativo</option>
+                        <option value="false" {% if not modalidade[8] %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/modalidades-entrega" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Atualizar Modalidade</button>
+            </div>
+
+        </form>
+    </section>
+</section>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Categorias</h1>
+            <p>Gerencie as categorias da loja e as imagens exibidas na home.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/categorias/nova" class="btn-admin">Nova Categoria</a>
+        </div>
+    </div>
+
+    {% if categorias %}
+    <div class="admin-list-grid">
+        {% for categoria in categorias %}
+        <article class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">
+                    {% if categoria[2] %}
+                    <div class="admin-card-thumb">
+                        <img src="{{ url_for('static', filename='uploads/' ~ categoria[2]) }}" alt="{{ categoria[1] }}">
+                    </div>
+                    {% else %}
+                    <div class="admin-card-thumb placeholder">
+                        Sem imagem
+                    </div>
+                    {% endif %}
+
+                    <div class="admin-card-title-content">
+                        <h2>{{ categoria[1] }}</h2>
+                        <p class="admin-card-subtitle">Categoria cadastrada na loja</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <a href="/admin/categorias/editar/{{ categoria[0] }}" class="btn-admin-outline">Editar</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">Nenhuma categoria cadastrada.</div>
+    {% endif %}
+</section>
+{% endblock %}

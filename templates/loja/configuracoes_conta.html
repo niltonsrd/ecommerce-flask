@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configuracoes-conta.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Configurações da conta</h2>
+                        <p class="account-section-description">
+                            Atualize suas informações principais e mantenha sua conta sempre organizada.
+                        </p>
+                    </div>
+                </div>
+
+                <form method="POST" action="/configuracoes-conta" enctype="multipart/form-data"
+                    class="account-profile-card account-form settings-form">
+                    <div class="settings-form-top">
+                        <div class="account-profile-avatar large settings-avatar-preview">
+                            {% if session.get("usuario_foto") %}
+                            <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
+                                alt="Foto de perfil">
+                            {% else %}
+                            <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="settings-form-intro">
+                            <span class="section-kicker">Perfil</span>
+                            <h3>Seus dados</h3>
+                            <p>Edite as informações básicas da sua conta e envie sua foto de perfil.</p>
+                        </div>
+                    </div>
+
+                    {% if erro %}
+                    <div class="settings-alert settings-alert-error">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+
+                    {% if sucesso %}
+                    <div class="settings-alert settings-alert-success">
+                        {{ sucesso }}
+                    </div>
+                    {% endif %}
+
+                    <div class="settings-grid">
+                        <div class="account-data-item account-data-item-form">
+                            <label for="nome">Nome</label>
+                            <input type="text" id="nome" name="nome" value="{{ session.get('usuario_nome') or '' }}"
+                                required>
+                        </div>
+
+                        <div class="account-data-item account-data-item-form">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="{{ session.get('usuario_email') or '' }}" disabled>
+                        </div>
+
+                        <div class="account-data-item account-data-item-form">
+                            <label for="tipo_conta">Tipo de conta</label>
+                            <input type="text" id="tipo_conta"
+                                value="{% if session.get('usuario_tipo') %}{{ session.get('usuario_tipo') | capitalize }}{% else %}Cliente{% endif %}"
+                                disabled>
+                        </div>
+                    </div>
+
+                    <div class="settings-upload-card">
+                    
+                        <div class="settings-upload-left">
+                            <label class="settings-upload-label">Foto de perfil</label>
+                            <p class="settings-upload-help">
+                                PNG, JPG, JPEG ou WEBP • Máx recomendado: 2MB
+                            </p>
+                    
+                            <div class="settings-upload-actions">
+                                <label for="foto" class="btn-secondary upload-btn">
+                                    Escolher imagem
+                                </label>
+                    
+                                <span id="file-name" class="upload-file-name">
+                                    Nenhum arquivo selecionado
+                                </span>
+                            </div>
+                        </div>
+                    
+                        <input type="file" id="foto" name="foto" accept=".png,.jpg,.jpeg,.webp" hidden>
+                    </div>
+
+                    <div class="settings-actions">
+                        <button type="submit" class="btn-primary">Salvar alterações</button>
+                        <a href="/minha-conta" class="btn-secondary">Voltar para visão geral</a>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </div>
+</section>
+<script>
+    document.getElementById("foto").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+
+        if (!file) return;
+
+        // Nome do arquivo
+        document.getElementById("file-name").textContent = file.name;
+
+        // Preview da imagem
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const avatar = document.querySelector(".settings-avatar-preview");
+
+            avatar.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+        };
+
+        reader.readAsDataURL(file);
+    });
+</script>
+
+{% endblock %}

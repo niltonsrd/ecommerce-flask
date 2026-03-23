@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-home-blocos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-page">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Blocos da Home</h1>
+            <p>Gerencie os blocos visuais que aparecem na página inicial da loja.</p>
+        </div>
+
+        <a href="/admin/home-blocos/novo" class="btn-primary">Novo bloco</a>
+    </div>
+
+    <div class="admin-table-wrap card-glass">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Ordem</th>
+                    <th>Imagem</th>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Layout</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for bloco in blocos %}
+                <tr>
+                    <td>{{ bloco[15] }}</td>
+
+                    <td>
+                        {% if bloco[7] %}
+                        <img src="{{ url_for('static', filename='uploads/' + bloco[7]) }}" alt="{{ bloco[1] }}"
+                            class="admin-table-thumb">
+                        {% else %}
+                        <span class="admin-no-thumb">Sem imagem</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ bloco[1] }}</td>
+
+                    <td>
+                        {% if bloco[2] == 'hero' %}
+                        Hero principal
+                        {% elif bloco[2] == 'promo' %}
+                        Bloco promocional
+                        {% elif bloco[2] == 'cta' %}
+                        Chamada final
+                        {% elif bloco[2] == 'banner' %}
+                        Banner
+                        {% else %}
+                        {{ bloco[2] }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if bloco[3] == 'texto' %}
+                        Somente texto
+                        {% elif bloco[3] == 'imagem' %}
+                        Somente imagem
+                        {% elif bloco[3] == 'imagem_texto' %}
+                        Imagem + texto
+                        {% elif bloco[3] == 'fundo_texto' %}
+                        Imagem de fundo + texto
+                        {% else %}
+                        {{ bloco[3] }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if bloco[16] %}
+                        <span class="status-badge status-active">Ativo</span>
+                        {% else %}
+                        <span class="status-badge status-inactive">Inativo</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="table-actions">
+                        <a href="/admin/home-blocos/editar/{{ bloco[0] }}" class="btn-secondary btn-sm">Editar</a>
+                        <a href="/admin/home-blocos/excluir/{{ bloco[0] }}" class="btn-danger btn-sm">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

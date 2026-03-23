@@ -1,0 +1,234 @@
+.pedido-detalhe-page {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 80px;
+}
+
+.pedido-detalhe-header {
+    margin-bottom: 28px;
+}
+
+.pedido-detalhe-header h1 {
+    margin: 10px 0 10px;
+    font-size: clamp(2rem, 3vw, 3.1rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--text);
+}
+
+.pedido-detalhe-header p {
+    max-width: 760px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.pedido-resumo-card,
+.pedido-itens-card {
+    padding: 26px;
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at top right, rgb(var(--primary-rgb) / 0.08), transparent 24%),
+        rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(14px);
+}
+
+.pedido-itens-card {
+    margin-top: 22px;
+}
+
+.pedido-resumo-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.pedido-info-principal {
+    flex: 1;
+    min-width: 300px;
+}
+
+.pedido-info-principal h2 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+    color: var(--text);
+}
+
+.pedido-info-lista p {
+    margin: 8px 0;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.pedido-financeiro-box {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.pedido-financeiro-box h3 {
+    margin: 0 0 14px;
+    color: var(--text);
+}
+
+.pedido-financeiro-box p {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--text);
+}
+
+.pedido-divider {
+    height: 1px;
+    margin: 14px 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+}
+
+.pedido-total {
+    font-size: 1.15rem;
+}
+
+.pedido-observacoes-box {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.pedido-observacoes-box strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.pedido-observacoes-box p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.pedido-section-heading {
+    margin-bottom: 18px;
+}
+
+.pedido-section-heading h2 {
+    margin: 10px 0 0;
+    color: var(--text);
+}
+
+.pedido-itens-lista {
+    display: grid;
+    gap: 14px;
+}
+
+.pedido-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.pedido-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.pedido-item-info h3 {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.pedido-item-info p {
+    margin: 5px 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.pedido-item-total {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.pedido-status {
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.84rem;
+    font-weight: 800;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.pedido-status.aguardando,
+.pedido-status.separacao {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.pedido-status.pago,
+.pedido-status.entregue {
+    background: rgba(34, 197, 94, 0.14);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+}
+
+.pedido-status.enviado {
+    background: rgba(59, 130, 246, 0.14);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.28);
+}
+
+.pedido-status.cancelado {
+    background: rgba(239, 68, 68, 0.14);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.pedido-status.neutro {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.pedido-back-action {
+    margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+    .pedido-detalhe-page {
+        width: min(1180px, calc(100% - 24px));
+        padding: 28px 0 60px;
+    }
+
+    .pedido-resumo-card,
+    .pedido-itens-card {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .pedido-financeiro-box {
+        max-width: 100%;
+    }
+
+    .pedido-back-action .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}

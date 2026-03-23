@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Nova Categoria</h1>
+            <p>Cadastre uma nova categoria e defina a imagem que será usada na vitrine da home.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/categorias" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" enctype="multipart/form-data" class="admin-form">
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="nome">Nome da categoria</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Camisas" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="imagem">Imagem da categoria</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*">
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/categorias" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Salvar Categoria</button>
+            </div>
+        </form>
+    </section>
+</section>
+{% endblock %}

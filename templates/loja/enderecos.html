@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enderecos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Meus endereços</h2>
+                        <p class="account-section-description">
+                            Gerencie seus endereços de entrega e mantenha seu cadastro sempre pronto para o checkout.
+                        </p>
+                    </div>
+
+                    <a href="/enderecos/novo" class="btn-primary">
+                        + Novo endereço
+                    </a>
+                </div>
+
+                {% if endereco_principal %}
+                <div class="endereco-principal-highlight">
+                    <span class="section-kicker">Principal</span>
+                    <h3>{{ endereco_principal.nome_destinatario }}</h3>
+
+                    <p>
+                        {{ endereco_principal.logradouro }}, {{ endereco_principal.numero }}
+                        {% if endereco_principal.complemento %}
+                        - {{ endereco_principal.complemento }}
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        {{ endereco_principal.bairro }} - {{ endereco_principal.cidade }}/{{ endereco_principal.estado
+                        }}
+                    </p>
+
+                    <p>CEP: {{ endereco_principal.cep }}</p>
+
+                    {% if endereco_principal.referencia %}
+                    <p class="endereco-ref">Referência: {{ endereco_principal.referencia }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if enderecos %}
+                <div class="enderecos-grid">
+                    {% for endereco in enderecos %}
+                    <article class="endereco-card {% if endereco.principal %}endereco-card-principal{% endif %}">
+                
+                        <div class="endereco-card-top">
+                            <div>
+                                <h3>{{ endereco.nome_destinatario }}</h3>
+                                {% if endereco.principal %}
+                                <span class="endereco-badge">Endereço principal</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                
+                        <div class="endereco-card-body">
+                            <p>
+                                {{ endereco.logradouro }}, {{ endereco.numero }}
+                                {% if endereco.complemento %}
+                                - {{ endereco.complemento }}
+                                {% endif %}
+                            </p>
+                
+                            <p>{{ endereco.bairro }}</p>
+                            <p>{{ endereco.cidade }}/{{ endereco.estado }}</p>
+                            <p>CEP: {{ endereco.cep }}</p>
+                
+                            {% if endereco.referencia %}
+                            <p class="endereco-ref">Referência: {{ endereco.referencia }}</p>
+                            {% endif %}
+                        </div>
+                
+                        <div class="endereco-card-actions">
+                            {% if endereco.principal %}
+                            <span class="btn-secondary endereco-btn-disabled">
+                                Principal atual
+                            </span>
+                            {% else %}
+                            <a href="/enderecos/principal/{{ endereco.id }}" class="btn-secondary">
+                                Definir principal
+                            </a>
+                            {% endif %}
+                
+                            <a href="/enderecos/excluir/{{ endereco.id }}" class="btn-admin-danger">
+                                Excluir
+                            </a>
+                        </div>
+                
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="enderecos-empty">
+                    <span class="section-kicker">Sem endereços</span>
+                    <h3>Você ainda não cadastrou nenhum endereço</h3>
+                    <p>
+                        Adicione seu primeiro endereço para agilizar futuras compras e entregas.
+                    </p>
+                
+                    <a href="/enderecos/novo" class="btn-primary">
+                        Cadastrar endereço
+                    </a>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

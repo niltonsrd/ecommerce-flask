@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="checkout-container">
+        <div class="checkout-top">
+            <div class="checkout-title-wrap">
+                <span class="checkout-eyebrow">Pedido realizado</span>
+                <h1>Pedido #{{ pedido.id }}</h1>
+                <p>Seu pedido foi criado com sucesso. Acompanhe abaixo os detalhes.</p>
+            </div>
+        </div>
+
+        <div class="checkout-layout">
+            <div class="checkout-main">
+
+                <section class="checkout-card">
+                    <div class="checkout-card-header">
+                        <div>
+                            <span class="checkout-section-tag">Resumo</span>
+                            <h2>Status do pedido</h2>
+                        </div>
+                    </div>
+
+                    <div class="checkout-info-box">
+                        <p><strong>Pedido:</strong> #{{ pedido.id }}</p>
+                        <p><strong>Status:</strong> {{ pedido.status }}</p>
+                        <p><strong>Total:</strong> R$ {{ "%.2f"|format(pedido.valor_total) }}</p>
+                    </div>
+                </section>
+
+                {% if pagamento %}
+                <section class="checkout-card">
+                    <div class="checkout-card-header">
+                        <div>
+                            <span class="checkout-section-tag">Pagamento</span>
+                            <h2>Dados do pagamento</h2>
+                        </div>
+                    </div>
+
+                    <div class="checkout-info-box">
+                        <p><strong>Método:</strong> {{ pagamento.metodo }}</p>
+                        <p><strong>Status:</strong> {{ pagamento.status }}</p>
+                        <p><strong>Gateway:</strong> {{ pagamento.gateway }}</p>
+                        <p><strong>Valor:</strong> R$ {{ "%.2f"|format(pagamento.valor) }}</p>
+
+                        {% if pagamento.detalhes %}
+                        <p><strong>Observação:</strong> {{ pagamento.detalhes }}</p>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if endereco %}
+                <section class="checkout-card">
+                    <div class="checkout-card-header">
+                        <div>
+                            <span class="checkout-section-tag">Entrega</span>
+                            <h2>Endereço selecionado</h2>
+                        </div>
+                    </div>
+
+                    <div class="checkout-info-box">
+                        <p><strong>{{ endereco.nome_destinatario }}</strong></p>
+                        <p>{{ endereco.logradouro }}, {{ endereco.numero }}</p>
+                        {% if endereco.complemento %}
+                        <p>{{ endereco.complemento }}</p>
+                        {% endif %}
+                        <p>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}</p>
+                        <p>CEP: {{ endereco.cep }}</p>
+                        {% if endereco.referencia %}
+                        <p>Referência: {{ endereco.referencia }}</p>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
+                    <a href="/meus-pedidos" class="checkout-btn-finalizar"
+                        style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                        Ver meus pedidos
+                    </a>
+                    <a href="/produtos" class="checkout-btn-secundario">
+                        Continuar comprando
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        atualizarMiniCarrinho();
+    });
+</script>
+{% endblock %}

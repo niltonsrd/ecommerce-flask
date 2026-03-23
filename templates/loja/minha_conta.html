@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-hero">
+    <div class="account-hero-content">
+        <span class="section-kicker">Minha conta</span>
+        <h1>Gerencie seu perfil, pedidos e preferências em um só lugar</h1>
+        <p>
+            Acompanhe suas informações pessoais, navegue pelas áreas da conta
+            e mantenha sua experiência de compra organizada, rápida e premium.
+        </p>
+    </div>
+
+    <div class="account-hero-side">
+        <div class="account-hero-profile">
+            <div class="account-profile-avatar">
+                {% if session.get("usuario_foto") %}
+                <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
+                    alt="Foto de perfil">
+                {% else %}
+                <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="account-profile-meta">
+                <small>Conta ativa</small>
+                <h2>{{ session.get("usuario_nome") }}</h2>
+                <p>
+                    {% if session.get("usuario_tipo") %}
+                    {{ session.get("usuario_tipo") | capitalize }}
+                    {% else %}
+                    Cliente
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-summary-grid">
+                <article class="account-summary-card">
+                    <span class="account-summary-label">Pedidos</span>
+                    <strong>Meus pedidos</strong>
+                    <p>Visualize seus pedidos, acompanhe status e confira detalhes de compra.</p>
+                    <a href="/meus-pedidos">Abrir pedidos</a>
+                </article>
+
+                <article class="account-summary-card">
+                    <span class="account-summary-label">Favoritos</span>
+                    <strong>Produtos salvos</strong>
+                    <p>Reveja seus produtos favoritos e adicione ao carrinho mais rapidamente.</p>
+                    <a href="/favoritos">Ver favoritos</a>
+                </article>
+
+                <article class="account-summary-card">
+                    <span class="account-summary-label">Conta</span>
+                    <strong>Configurações</strong>
+                    <p>Atualize seus dados, preferências e informações da sua conta.</p>
+                    <a href="/configuracoes-conta">Gerenciar conta</a>
+                </article>
+            </section>
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Perfil</span>
+                        <h2>Dados pessoais</h2>
+                    </div>
+                </div>
+
+                <form method="POST" action="/minha-conta" class="account-profile-card account-form">
+                    <div class="account-profile-main">
+                        <div class="account-profile-avatar large">
+                            {% if session.get("usuario_foto") %}
+                            <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
+                                alt="Foto de perfil">
+                            {% else %}
+                            <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="account-profile-data">
+                            <div class="account-data-item account-data-item-form">
+                                <label for="nome">Nome</label>
+                                <input type="text" id="nome" name="nome" value="{{ session.get('usuario_nome') or '' }}"
+                                    required>
+                            </div>
+
+                            <div class="account-data-item account-data-item-form">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" value="{{ session.get('usuario_email') or '' }}"
+                                    disabled>
+                            </div>
+
+                            <div class="account-data-item account-data-item-form">
+                                <label for="tipo_conta">Tipo de conta</label>
+                                <input type="text" id="tipo_conta"
+                                    value="{% if session.get('usuario_tipo') %}{{ session.get('usuario_tipo') | capitalize }}{% else %}Cliente{% endif %}"
+                                    disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-profile-actions">
+                        <a href="/configuracoes-conta" class="btn-primary">Editar meus dados</a>
+                        <a href="/enderecos" class="btn-secondary">Gerenciar endereços</a>
+                    </div>
+                </form>
+            </section>
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Atalhos</span>
+                        <h2>Ações rápidas</h2>
+                    </div>
+                </div>
+
+                <div class="account-actions-grid">
+                    <a href="/meus-pedidos" class="account-action-card">
+                        <strong>Pedidos</strong>
+                        <p>Acompanhe compras e veja o histórico completo.</p>
+                    </a>
+
+                    <a href="/favoritos" class="account-action-card">
+                        <strong>Favoritos</strong>
+                        <p>Revise tudo que você salvou para comprar depois.</p>
+                    </a>
+
+                    <a href="/carrinho" class="account-action-card">
+                        <strong>Carrinho</strong>
+                        <p>Finalize sua compra com rapidez e segurança.</p>
+                    </a>
+
+                    <a href="/enderecos" class="account-action-card">
+                        <strong>Endereços</strong>
+                        <p>Gerencie seus endereços de entrega e cobrança.</p>
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+<style>
+    .pix-box {
+        display: grid;
+        gap: 18px;
+    }
+
+    .pix-qr-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pix-qr-wrap img {
+        max-width: 260px;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+    }
+
+    .pix-copy-box,
+    .pix-info-card,
+    .pix-upload-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .pix-copy-box textarea,
+    .pix-copy-box input,
+    .pix-upload-box textarea,
+    .pix-upload-box input[type="file"] {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 8px;
+        resize: none;
+    }
+
+    .pix-copy-box textarea::placeholder,
+    .pix-copy-box input::placeholder,
+    .pix-upload-box textarea::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .pix-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+    }
+
+    .pix-info-card p {
+        margin: 0;
+    }
+
+    .pix-info-card p+p {
+        margin-top: 8px;
+    }
+
+    .pix-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .pix-btn {
+        border: none;
+        cursor: pointer;
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .pix-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .pix-btn-primary {
+        background: linear-gradient(90deg, #5b21ff, #ff003c);
+        color: #fff;
+    }
+
+    .pix-btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+
+    .pix-upload-box label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 700;
+    }
+
+    .pix-alert {
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pix-proof-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        margin-top: 12px;
+    }
+
+    .pix-proof-link:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="checkout-container">
+
+        <div class="checkout-top">
+            <div class="checkout-title-wrap">
+                <span class="checkout-eyebrow">Pagamento do pedido</span>
+                <h1>PIX manual</h1>
+                <p>
+                    Seu pedido foi criado e está aguardando pagamento.
+                    Escaneie o QR Code ou copie o código PIX abaixo.
+                </p>
+            </div>
+        </div>
+
+        <div class="checkout-layout">
+            <div class="checkout-main">
+                <section class="checkout-card">
+                    <div class="checkout-card-header">
+                        <div>
+                            <span class="checkout-section-tag">Pedido</span>
+                            <h2>Pedido #{{ pedido.id }}</h2>
+                        </div>
+                        <p>Aguardando pagamento</p>
+                    </div>
+
+                    <div class="pix-box">
+
+                        <div class="checkout-info-box">
+                            <p><strong>Valor total:</strong></p>
+                            <div style="margin-top: 8px; font-size: 1.8rem; font-weight: 800;">
+                                R$ {{ "%.2f"|format(pagamento.valor) }}
+                            </div>
+                        </div>
+
+                        {% if qr_code_base64 %}
+                        <div class="pix-qr-wrap">
+                            <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code PIX">
+                        </div>
+                        {% endif %}
+
+                        {% if pix_payload %}
+                        <div class="pix-copy-box">
+                            <p><strong>PIX copia e cola</strong></p>
+                            <textarea id="pixPayload" rows="5" readonly>{{ pix_payload }}</textarea>
+
+                            <div class="pix-actions">
+                                <button type="button" class="pix-btn pix-btn-primary" onclick="copiarPixPayload()">
+                                    Copiar código PIX
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="pix-grid">
+                            {% if pix_recebedor %}
+                            <div class="pix-info-card">
+                                <p><strong>Recebedor:</strong></p>
+                                <p>{{ pix_recebedor }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if pix_banco %}
+                            <div class="pix-info-card">
+                                <p><strong>Banco:</strong></p>
+                                <p>{{ pix_banco }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if pix_tipo_chave %}
+                            <div class="pix-info-card">
+                                <p><strong>Tipo da chave:</strong></p>
+                                <p>{{ pix_tipo_chave }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if pix_cidade %}
+                            <div class="pix-info-card">
+                                <p><strong>Cidade:</strong></p>
+                                <p>{{ pix_cidade }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="pix-copy-box">
+                            <p><strong>Chave PIX</strong></p>
+                            <input type="text" id="pixKey" readonly value="{{ chave_pix_loja }}">
+
+                            <div class="pix-actions">
+                                <button type="button" class="pix-btn pix-btn-secondary" onclick="copiarPixKey()">
+                                    Copiar chave PIX
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pix-alert">
+                            <p><strong>Status do pagamento:</strong> {{ pagamento.status }}</p>
+                            <p style="margin-top: 8px;">
+                                Após pagar, envie o comprovante para confirmação manual.
+                            </p>
+                        </div>
+
+                        <div class="pix-upload-box">
+                            <p><strong>Já pagou?</strong></p>
+                            <p style="margin-top: 8px;">
+                                Envie seu comprovante para a loja analisar e confirmar o pagamento.
+                            </p>
+
+                            <form action="{{ url_for('checkout.enviar_comprovante_checkout', pedido_id=pedido.id) }}"
+                                method="POST" enctype="multipart/form-data" style="margin-top: 16px;">
+                                <div style="display: grid; gap: 14px;">
+                                    <div>
+                                        <label for="comprovante">Comprovante</label>
+                                        <input type="file" id="comprovante" name="comprovante"
+                                            accept=".png,.jpg,.jpeg,.pdf" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="observacao_cliente">Observação</label>
+                                        <textarea id="observacao_cliente" name="observacao_cliente" rows="3"
+                                            placeholder="Ex: pagamento realizado pelo app às 21:40"></textarea>
+                                    </div>
+
+                                    <div class="pix-actions">
+                                        <button type="submit" class="pix-btn pix-btn-primary">
+                                            Já paguei / Enviar comprovante
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {% if pagamento.comprovante_url %}
+                        <div class="pix-upload-box">
+                            <p><strong>Comprovante enviado</strong></p>
+                            <p style="margin-top: 8px;">
+                                Status atual: {{ pagamento.status }}
+                            </p>
+
+                            <a href="{{ url_for('static', filename='uploads/' + pagamento.comprovante_url) }}"
+                                target="_blank" class="pix-proof-link">
+                                Ver comprovante enviado
+                            </a>
+
+                            {% if pagamento.observacao_cliente %}
+                            <p style="margin-top: 12px;">
+                                <strong>Observação:</strong> {{ pagamento.observacao_cliente }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div style="margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap;">
+                            <a href="/meu-pedido/{{ pedido.id }}" class="checkout-btn-finalizar"
+                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                                Ver detalhes do pedido
+                            </a>
+
+                            <a href="/meus-pedidos" class="checkout-btn-secundario">
+                                Ir para meus pedidos
+                            </a>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    async function copiarPixPayload() {
+        const campo = document.getElementById("pixPayload");
+        if (!campo) return;
+
+        await navigator.clipboard.writeText(campo.value);
+        alert("Código PIX copiado com sucesso.");
+    }
+
+    async function copiarPixKey() {
+        const campo = document.getElementById("pixKey");
+        if (!campo) return;
+
+        await navigator.clipboard.writeText(campo.value);
+        alert("Chave PIX copiada com sucesso.");
+    }
+</script>
+{% endblock %}

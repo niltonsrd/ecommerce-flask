@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Editar Banner</h1>
+
+<form method="POST" enctype="multipart/form-data">
+
+    <label>Título</label><br>
+    <input type="text" name="titulo" value="{{ banner[1] }}"><br><br>
+
+    <label>Subtítulo</label><br>
+    <input type="text" name="subtitulo" value="{{ banner[2] }}"><br><br>
+
+    {% if banner[3] %}
+    <img src="/static/uploads/{{ banner[3] }}" width="200"><br><br>
+    {% endif %}
+
+    <label>Nova imagem (opcional)</label><br>
+    <input type="file" name="imagem"><br><br>
+
+    <label>Link</label><br>
+    <input type="text" name="link" value="{{ banner[4] }}"><br><br>
+
+    <label>Status</label><br>
+    <select name="ativo">
+        <option value="true" {% if banner[5] %}selected{% endif %}>Ativo</option>
+        <option value="false" {% if not banner[5] %}selected{% endif %}>Inativo</option>
+    </select><br><br>
+
+    <label>Ordem</label><br>
+    <input type="number" name="ordem" value="{{ banner[6] }}"><br><br>
+
+    <button type="submit">Atualizar Banner</button>
+
+</form>
+
+{% endblock %}

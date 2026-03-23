@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Produtos</h1>
+            <p>Gerencie produtos, status, estoque e imagens da loja.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/produtos/novo" class="btn-admin">Novo Produto</a>
+        </div>
+    </div>
+
+    {% if produtos %}
+    <div class="admin-list-grid">
+        {% for produto in produtos %}
+        <article class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">
+                    <div class="admin-card-thumb {% if not produto[7] %}placeholder{% endif %}">
+                        {% if produto[7] %}
+                        <img src="/static/uploads/{{ produto[7] }}" alt="{{ produto[1] }}">
+                        {% else %}
+                        Sem imagem
+                        {% endif %}
+                    </div>
+
+                    <div class="admin-card-title-content">
+                        <h2>{{ produto[1] }}</h2>
+
+                        <div class="admin-tags">
+                            <span class="admin-tag">{{ produto[3] }}</span>
+                            <span class="admin-tag">{{ produto[4] }}</span>
+                            <span class="admin-tag">Estoque total: {{ produto[8] }}</span>
+                        </div>
+
+                        {% if produto[6] %}
+                        <span class="admin-status active">Ativo</span>
+                        {% else %}
+                        <span class="admin-status inactive">Inativo</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-meta-grid">
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Preço</span>
+                    <span class="admin-meta-value">R$ {{ "%.2f"|format(produto[2]) }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Estoque por tamanho</span>
+                    <span class="admin-meta-value">{{ produto[9] if produto[9] else 'Sem variações cadastradas'
+                        }}</span>
+                </div>
+            </div>
+
+            <div class="admin-description">
+                <strong>Descrição</strong>
+                <p>{{ produto[5] if produto[5] else 'Sem descrição cadastrada.' }}</p>
+            </div>
+
+            <div class="admin-actions">
+                <a href="/admin/produtos/editar/{{ produto[0] }}" class="btn-admin-outline">Editar</a>
+                <a href="/admin/produtos/{{ produto[0] }}/estoque" class="btn-admin-outline">Estoque</a>
+                <a href="/admin/produtos/{{ produto[0] }}/imagens" class="btn-admin-outline">Imagens</a>
+                <a href="/admin/produtos/deletar/{{ produto[0] }}" class="btn-admin-danger">Excluir</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">
+        Nenhum produto cadastrado.
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Editar Frete</h1>
+
+<form method="POST">
+
+    <label>Nome da região</label><br>
+    <input type="text" name="nome_regiao" value="{{ frete[1] }}" required><br><br>
+
+    <label>CEP inicial</label><br>
+    <input type="text" name="cep_inicio" value="{{ frete[2] }}" required><br><br>
+
+    <label>CEP final</label><br>
+    <input type="text" name="cep_fim" value="{{ frete[3] }}" required><br><br>
+
+    <label>Valor</label><br>
+    <input type="number" step="0.01" name="valor" value="{{ frete[4] }}" required><br><br>
+
+    <label>Prazo em dias</label><br>
+    <input type="number" name="prazo_dias" value="{{ frete[5] }}" required><br><br>
+
+    <label>Status</label><br>
+    <select name="ativo">
+        <option value="true" {% if frete[6] %}selected{% endif %}>Ativo</option>
+        <option value="false" {% if not frete[6] %}selected{% endif %}>Inativo</option>
+    </select><br><br>
+
+    <button type="submit">Atualizar Frete</button>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Editar Categoria</h1>
+            <p>Atualize o nome da categoria e a imagem exibida na seção de categorias da home.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/categorias" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" enctype="multipart/form-data" class="admin-form">
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="nome">Nome da categoria</label>
+                    <input type="text" id="nome" name="nome" value="{{ categoria[1] }}" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="imagem">Nova imagem da categoria</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*">
+                </div>
+            </div>
+
+            {% if categoria[2] %}
+            <div class="categoria-imagem-preview">
+                <span class="categoria-preview-label">Imagem atual</span>
+                <div class="categoria-preview-card">
+                    <img src="{{ url_for('static', filename='uploads/' ~ categoria[2]) }}" alt="{{ categoria[1] }}">
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="admin-form-actions">
+                <a href="/admin/categorias" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Atualizar Categoria</button>
+            </div>
+        </form>
+    </section>
+</section>
+{% endblock %}

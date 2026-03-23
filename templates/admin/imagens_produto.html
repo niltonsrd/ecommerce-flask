@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/imagens-produto.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Imagens do Produto</h1>
+            <p>Gerencie as imagens do produto, defina a imagem principal e organize a galeria visual da loja.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/produtos" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" enctype="multipart/form-data" class="admin-form">
+            <div class="admin-upload-row">
+                <div class="admin-form-group admin-form-group-grow">
+                    <label for="imagem">Nova imagem</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*" required>
+                </div>
+
+                <div class="admin-upload-action">
+                    <button type="submit" class="btn-admin">Adicionar Imagem</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    {% if imagens %}
+    <div class="admin-image-grid">
+        {% for img in imagens %}
+        <article class="admin-image-card">
+            <div class="admin-image-thumb">
+                <img src="/static/uploads/{{ img[1] }}" alt="Imagem do produto">
+            </div>
+
+            <div class="admin-image-content">
+                <div class="admin-meta-grid">
+                    <div class="admin-meta-item">
+                        <span class="admin-meta-label">Ordem</span>
+                        <span class="admin-meta-value">{{ img[3] }}</span>
+                    </div>
+
+                    <div class="admin-meta-item">
+                        <span class="admin-meta-label">Status</span>
+                        <span class="admin-meta-value">
+                            {% if img[2] %}
+                            <span class="admin-status active">Principal</span>
+                            {% else %}
+                            <span class="admin-status inactive">Secundária</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="admin-actions">
+                    {% if not img[2] %}
+                    <a href="/admin/produtos/imagem/principal/{{ img[0] }}/{{ produto_id }}" class="btn-admin-outline">
+                        Definir como principal
+                    </a>
+                    {% endif %}
+
+                    <a href="/admin/produtos/imagem/excluir/{{ img[0] }}/{{ produto_id }}" class="btn-admin-danger">
+                        Excluir
+                    </a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">
+        Nenhuma imagem cadastrada para este produto.
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

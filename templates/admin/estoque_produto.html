@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Adicionar Estoque</h1>
+            <p>Adicione quantidade de estoque para um tamanho específico do produto.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/produtos" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" class="admin-form">
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group">
+                    <label for="tamanho">Tamanho</label>
+                    <select id="tamanho" name="tamanho" required>
+                        {% for tamanho in tamanhos %}
+                        <option value="{{ tamanho[0] }}">
+                            {{ tamanho[1] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="quantidade">Quantidade</label>
+                    <input type="number" id="quantidade" name="quantidade" min="0" required>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/produtos" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Salvar Estoque</button>
+            </div>
+
+        </form>
+    </section>
+</section>
+
+{% endblock %}

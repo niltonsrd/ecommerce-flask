@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="produto-page">
+
+    <div class="produto-top">
+        <div class="produto-galeria-premium">
+        
+            {% if imagens %}
+            <div class="produto-imagem-principal">
+                <img id="imagem-principal-produto" src="/static/uploads/{{ imagens[0][1] }}" alt="{{ produto[1] }}">
+            </div>
+        
+            <div class="produto-thumbs">
+                {% for imagem in imagens %}
+                <button type="button" class="produto-thumb {% if loop.first %}ativo{% endif %}"
+                    data-imagem="/static/uploads/{{ imagem[1] }}" data-alt="{{ produto[1] }}">
+                    <img src="/static/uploads/{{ imagem[1] }}" alt="{{ produto[1] }}">
+                </button>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="produto-imagem-principal sem-imagem-produto">
+                <p>Sem imagem disponível</p>
+            </div>
+            {% endif %}
+        
+        </div>
+
+        <div class="produto-info-premium">
+
+            <span class="section-kicker">Detalhes do produto</span>
+
+            {% if produto[5] %}
+            <p class="produto-marca-premium">{{ produto[5] }}</p>
+            {% endif %}
+
+            <h1>{{ produto[1] }}</h1>
+
+            <div class="produto-rating-resumo">
+                <div class="produto-stars">
+                    {% if resumo_avaliacoes[0] >= 1 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 2 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 3 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 4 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 5 %}★{% else %}☆{% endif %}
+                </div>
+                <span>
+                    {{ "%.1f"|format(resumo_avaliacoes[0]) }}/5
+                    • {{ resumo_avaliacoes[1] }} avaliações
+                </span>
+            </div>
+
+            <div class="produto-preco-premium">
+                R$ {{ "%.2f"|format(produto[3]) }}
+            </div>
+
+            {% if produto[2] %}
+            <div class="produto-descricao-premium">
+                <p>{{ produto[2] }}</p>
+            </div>
+            {% endif %}
+
+            <div class="produto-benefits">
+                <div class="produto-benefit-item">✔ Visual premium para destacar o produto</div>
+                <div class="produto-benefit-item">✔ Checkout rápido e experiência moderna</div>
+                <div class="produto-benefit-item">✔ Pronto para pedidos, favoritos e avaliações</div>
+            </div>
+
+            <div class="produto-compra-box">
+                <h3>Escolha o tamanho</h3>
+
+                <form action="/adicionar-carrinho/{{ produto[0] }}" method="GET" class="produto-form-compra">
+
+                    <div class="produto-form-group">
+                        <label for="tamanho">Tamanho</label>
+                        <select name="tamanho" id="tamanho" required>
+                            {% for tamanho in tamanhos %}
+                            <option value="{{ tamanho[0] }}">
+                                {{ tamanho[1] }} ({{ tamanho[2] }} disponíveis)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="produto-form-actions">
+                        <button type="submit" class="btn-primary produto-btn-comprar">
+                            Adicionar ao Carrinho
+                        </button>
+
+                        <a href="/favoritar/{{ produto[0] }}" class="produto-favoritar-btn">
+                            ❤️ Favoritar produto
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <section class="produto-extra-section">
+        <div class="section-header">
+            <span class="section-kicker">Descrição</span>
+            <h2>Mais sobre este produto</h2>
+            <p>Informações pensadas para valorizar a apresentação do item e facilitar a decisão de compra.</p>
+        </div>
+
+        <div class="produto-extra-grid">
+            <div class="produto-extra-card">
+                <h3>Apresentação premium</h3>
+                <p>
+                    Esta página foi construída para destacar imagem, preço, avaliações
+                    e ação principal de compra em uma estrutura mais forte e mais profissional.
+                </p>
+            </div>
+
+            <div class="produto-extra-card">
+                <h3>Experiência de conversão</h3>
+                <p>
+                    Tudo está organizado para reduzir fricção e valorizar o produto,
+                    desde a galeria até o bloco principal de compra.
+                </p>
+            </div>
+
+            <div class="produto-extra-card">
+                <h3>Preparado para crescimento</h3>
+                <p>
+                    Quando você cadastrar mais imagens, descrições e avaliações,
+                    esta página ganha ainda mais profundidade visual.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="produto-avaliacoes-section">
+        <div class="section-header">
+            <span class="section-kicker">Avaliações</span>
+            <h2>O que os clientes estão dizendo</h2>
+            <p>Avaliações ajudam a aumentar confiança, prova social e conversão.</p>
+        </div>
+
+        <div class="avaliacoes-resumo-card">
+            <div class="avaliacoes-resumo-nota">
+                <strong>{{ "%.1f"|format(resumo_avaliacoes[0]) }}</strong>
+                <span>/ 5</span>
+            </div>
+
+            <div>
+                <div class="produto-stars large">
+                    {% if resumo_avaliacoes[0] >= 1 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 2 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 3 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 4 %}★{% else %}☆{% endif %}
+                    {% if resumo_avaliacoes[0] >= 5 %}★{% else %}☆{% endif %}
+                </div>
+                <p>{{ resumo_avaliacoes[1] }} avaliações registradas</p>
+            </div>
+        </div>
+
+        {% if session.get("usuario_id") %}
+        <div class="avaliacao-form-card">
+            <h3>Sua avaliação</h3>
+
+            <form action="/produto/{{ produto[0] }}/avaliar" method="POST" class="avaliacao-form">
+
+                <div class="filtro-grupo">
+                    <label for="nota">Nota</label>
+                    <select name="nota" id="nota" required>
+                        <option value="1" {% if minha_avaliacao and minha_avaliacao[1]==1 %}selected{% endif %}>1
+                        </option>
+                        <option value="2" {% if minha_avaliacao and minha_avaliacao[1]==2 %}selected{% endif %}>2
+                        </option>
+                        <option value="3" {% if minha_avaliacao and minha_avaliacao[1]==3 %}selected{% endif %}>3
+                        </option>
+                        <option value="4" {% if minha_avaliacao and minha_avaliacao[1]==4 %}selected{% endif %}>4
+                        </option>
+                        <option value="5" {% if minha_avaliacao and minha_avaliacao[1]==5 %}selected{% endif %}>5
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="comentario">Comentário</label>
+                    <textarea name="comentario" id="comentario"
+                        rows="5">{% if minha_avaliacao %}{{ minha_avaliacao[2] }}{% endif %}</textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">Salvar Avaliação</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="avaliacao-login-box">
+            <p>Faça login para avaliar este produto.</p>
+            <a href="/login" class="btn-primary">Entrar para avaliar</a>
+        </div>
+        {% endif %}
+
+        {% if avaliacoes %}
+        <div class="avaliacoes-lista">
+            {% for avaliacao in avaliacoes %}
+            <article class="avaliacao-card">
+                <div class="avaliacao-header">
+                    <strong>{{ avaliacao[4] }}</strong>
+                    <span class="avaliacao-data">{{ avaliacao[3] }}</span>
+                </div>
+
+                <div class="produto-stars small">
+                    {% if avaliacao[1] >= 1 %}★{% else %}☆{% endif %}
+                    {% if avaliacao[1] >= 2 %}★{% else %}☆{% endif %}
+                    {% if avaliacao[1] >= 3 %}★{% else %}☆{% endif %}
+                    {% if avaliacao[1] >= 4 %}★{% else %}☆{% endif %}
+                    {% if avaliacao[1] >= 5 %}★{% else %}☆{% endif %}
+                </div>
+
+                <p class="avaliacao-texto">{{ avaliacao[2] }}</p>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-products-state">
+            <span class="section-kicker">Sem avaliações</span>
+            <h3>Este produto ainda não possui avaliações</h3>
+            <p>Quando os primeiros clientes avaliarem, elas aparecerão aqui.</p>
+        </div>
+        {% endif %}
+    </section>
+
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const imagemPrincipal = document.getElementById("imagem-principal-produto");
+        const thumbs = document.querySelectorAll(".produto-thumb");
+
+        if (!imagemPrincipal || !thumbs.length) return;
+
+        thumbs.forEach((thumb) => {
+            thumb.addEventListener("click", function () {
+                const novaImagem = this.getAttribute("data-imagem");
+                const novoAlt = this.getAttribute("data-alt");
+
+                imagemPrincipal.src = novaImagem;
+                imagemPrincipal.alt = novoAlt;
+
+                thumbs.forEach((item) => item.classList.remove("ativo"));
+                this.classList.add("ativo");
+            });
+        });
+    });
+</script>
+
+{% endblock %}

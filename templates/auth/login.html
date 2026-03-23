@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-page">
+    <div class="auth-shell">
+
+        <div class="auth-brand-panel">
+            <div class="auth-brand-content">
+                <div class="brand-area-login">
+                    <a class="brand-logo-login">
+                        {% if logo_url %}
+                        <img src="{{ url_for('static', filename='uploads/' + logo_url) }}" alt="Logo da loja">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo da loja">
+                        {% endif %}
+                    </a>
+                </div>
+
+                <h1>Entre na sua conta</h1>
+                <p>
+                    Acesse sua conta para acompanhar pedidos, favoritar produtos,
+                    finalizar compras mais rápido e aproveitar uma experiência premium.
+                </p>
+
+                <div class="auth-benefits">
+                    <div class="auth-benefit-item">✔ Acompanhe seus pedidos em tempo real</div>
+                    <div class="auth-benefit-item">✔ Salve produtos nos favoritos</div>
+                    <div class="auth-benefit-item">✔ Finalize compras com mais rapidez</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-form-panel">
+            <div class="auth-form-header">
+                <span class="auth-mini-kicker">Login</span>
+                <h2>Entrar</h2>
+                <p>Preencha seus dados para acessar sua conta.</p>
+            </div>
+
+            <form method="POST" class="auth-form">
+                <div class="auth-form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-auth-primary">Entrar</button>
+            </form>
+
+            <div class="auth-divider">
+                <span>ou</span>
+            </div>
+
+            <div class="auth-footer">
+                <p>Ainda não tem conta?</p>
+                <a href="/cadastro" class="btn-auth-secondary">Criar conta</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

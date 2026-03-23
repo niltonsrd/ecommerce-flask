@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="produtos-hero">
+    <div class="produtos-hero-content">
+        <span class="section-kicker">Catálogo</span>
+        <h1>Encontre produtos com visual premium e navegação inteligente</h1>
+        <p>
+            Explore a vitrine da loja com filtros avançados, ordenação e uma experiência
+            visual mais forte para destacar cada produto.
+        </p>
+    </div>
+</section>
+
+<section class="produtos-page-section">
+    <div class="produtos-layout">
+
+        <aside class="filtros filtros-premium">
+            <div class="filtros-header">
+                <span class="section-kicker">Filtros</span>
+                <h2>Refine sua busca</h2>
+                <p>Use os filtros para encontrar exatamente o que procura.</p>
+            </div>
+
+            <form method="GET" action="/produtos" class="filtros-form">
+
+                <div class="filtro-grupo">
+                    <label for="q">Buscar</label>
+                    <input id="q" type="text" name="q" placeholder="Buscar produto" value="{{ filtro_q or '' }}">
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria[0] }}" {% if filtro_categoria and
+                            filtro_categoria|string==categoria[0]|string %}selected{% endif %}>
+                            {{ categoria[1] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="marca">Marca</label>
+                    <select id="marca" name="marca">
+                        <option value="">Todas</option>
+                        {% for marca in marcas %}
+                        <option value="{{ marca[0] }}" {% if filtro_marca and filtro_marca|string==marca[0]|string
+                            %}selected{% endif %}>
+                            {{ marca[1] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="tamanho">Tamanho</label>
+                    <select id="tamanho" name="tamanho">
+                        <option value="">Todos</option>
+                        {% for tamanho in tamanhos %}
+                        <option value="{{ tamanho[0] }}" {% if filtro_tamanho and
+                            filtro_tamanho|string==tamanho[0]|string %}selected{% endif %}>
+                            {{ tamanho[1] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filtro-precos">
+                    <div class="filtro-grupo">
+                        <label for="preco_min">Preço mínimo</label>
+                        <input id="preco_min" type="number" step="0.01" name="preco_min"
+                            value="{{ filtro_preco_min or '' }}">
+                    </div>
+
+                    <div class="filtro-grupo">
+                        <label for="preco_max">Preço máximo</label>
+                        <input id="preco_max" type="number" step="0.01" name="preco_max"
+                            value="{{ filtro_preco_max or '' }}">
+                    </div>
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="ordem">Ordenar</label>
+                    <select id="ordem" name="ordem">
+                        <option value="recentes" {% if filtro_ordem=="recentes" %}selected{% endif %}>Mais recentes
+                        </option>
+                        <option value="menor_preco" {% if filtro_ordem=="menor_preco" %}selected{% endif %}>Menor preço
+                        </option>
+                        <option value="maior_preco" {% if filtro_ordem=="maior_preco" %}selected{% endif %}>Maior preço
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filtros-actions">
+                    <button type="submit" class="btn-primary">Aplicar filtros</button>
+                    <a href="/produtos" class="btn-clear-filters">Limpar filtros</a>
+                </div>
+            </form>
+        </aside>
+
+        <div class="produtos-content">
+            <div class="produtos-topbar">
+                <div>
+                    <span class="section-kicker">Vitrine</span>
+                    <h2>Todos os produtos</h2>
+                </div>
+
+                <div class="produtos-topbar-info">
+                    <span>Página {{ pagina_atual }} de {{ total_paginas }}</span>
+                </div>
+            </div>
+
+            {% if produtos %}
+            <div class="produtos-grid produtos-grid-page">
+
+                {% for produto in produtos %}
+                <article class="produto-card produto-card-page">
+
+                    <div class="produto-card-image produto-card-image-page">
+                        <div class="produto-card-badge">Destaque</div>
+
+                        {% set imagens_json = produto.imagens|tojson|safe if produto.imagens else '[]' %}
+
+                        {% if produto.imagem %}
+                        <div class="produto-galeria-box" data-produto-id="{{ produto.id }}" data-imagens='{{ imagens_json }}'>
+                            <a href="/produto/{{ produto.id }}" class="produto-main-image-link">
+                                <img id="imagem-produto-{{ produto.id }}" class="produto-main-image" src="/static/uploads/{{ produto.imagem }}"
+                                    alt="{{ produto.nome }}">
+                            </a>
+                        
+                            {% if produto.imagens and produto.imagens|length > 1 %}
+                            <button type="button" class="produto-galeria-seta produto-galeria-seta-esquerda" data-produto-id="{{ produto.id }}"
+                                data-direcao="-1" onclick="clicarSetaGaleria(this)">
+                                <span>&lsaquo;</span>
+                            </button>
+                        
+                            <button type="button" class="produto-galeria-seta produto-galeria-seta-direita" data-produto-id="{{ produto.id }}"
+                                data-direcao="1" onclick="clicarSetaGaleria(this)">
+                                <span>&rsaquo;</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="product-image-empty"></div>
+                        {% endif %}
+
+                        {% if produto.imagens and produto.imagens|length > 1 %}
+                        <div class="produto-thumbs" id="thumbs-produto-{{ produto.id }}">
+                            {% for img in produto.imagens %}
+                            <button type="button" class="produto-thumb-btn {% if loop.first %}ativo{% endif %}"
+                                data-produto-id="{{ produto.id }}" data-imagem="{{ img }}" data-indice="{{ loop.index0 }}">
+                                <img src="/static/uploads/{{ img }}" alt="{{ produto.nome }}">
+                            </button>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="produto-info produto-info-page">
+                        <h3>{{ produto.nome }}</h3>
+
+                        <div class="produto-meta-line">
+                            <span class="produto-meta-tag">Premium</span>
+                            <span class="produto-meta-tag">
+                                {% if produto.tamanhos and produto.tamanhos|length > 0 %}
+                                Disponível
+                                {% else %}
+                                Indisponível
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="produto-preco produto-preco-page">
+                            R$ {{ "%.2f"|format(produto.preco) }}
+                        </div>
+
+                        <form method="POST" action="/carrinho/adicionar" class="produto-card-form">
+                            <input type="hidden" name="produto_id" value="{{ produto.id }}">
+
+                            <div class="produto-card-opcoes">
+                                <div class="produto-card-campo">
+                                    <label for="tamanho_{{ produto.id }}">Tamanho</label>
+                                    <select name="tamanho_id" id="tamanho_{{ produto.id }}" required>
+                                        <option value="">Selecione</option>
+                                        {% for tamanho in produto.tamanhos %}
+                                        <option value="{{ tamanho.id }}">
+                                            {{ tamanho.nome }} ({{ tamanho.estoque }} disponíveis)
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="produto-card-campo produto-card-campo-qtd">
+                                    <label for="quantidade_{{ produto.id }}">Qtd</label>
+                                    <input type="number" id="quantidade_{{ produto.id }}" name="quantidade" min="1"
+                                        value="1" required>
+                                </div>
+                            </div>
+
+                            <div class="produto-card-actions">
+                                <button type="submit" class="btn-produto btn-produto-main">
+                                    Adicionar ao carrinho
+                                </button>
+
+                                <a class="btn-produto btn-produto-secondary" href="/produto/{{ produto.id }}">
+                                    Ver produto
+                                </a>
+
+                                <a class="btn-produto btn-produto-secondary" href="/favoritos">
+                                    Favoritar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                </article>
+                {% endfor %}
+
+            </div>
+            {% else %}
+            <div class="empty-products-state">
+                <span class="section-kicker">Sem resultados</span>
+                <h3>Nenhum produto encontrado</h3>
+                <p>Tente ajustar os filtros ou fazer uma nova busca.</p>
+                <a href="/produtos" class="btn-primary">Ver todos os produtos</a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+<div class="paginacao paginacao-premium">
+    {% if pagina_atual > 1 %}
+    <a
+        href="?q={{ filtro_q or '' }}&categoria={{ filtro_categoria or '' }}&marca={{ filtro_marca or '' }}&tamanho={{ filtro_tamanho or '' }}&preco_min={{ filtro_preco_min or '' }}&preco_max={{ filtro_preco_max or '' }}&ordem={{ filtro_ordem or 'recentes' }}&pagina={{ pagina_atual - 1 }}">
+        Anterior
+    </a>
+    {% endif %}
+
+    <span class="paginacao-status">
+        Página {{ pagina_atual }} de {{ total_paginas }}
+    </span>
+
+    {% if pagina_atual < total_paginas %} <a
+        href="?q={{ filtro_q or '' }}&categoria={{ filtro_categoria or '' }}&marca={{ filtro_marca or '' }}&tamanho={{ filtro_tamanho or '' }}&preco_min={{ filtro_preco_min or '' }}&preco_max={{ filtro_preco_max or '' }}&ordem={{ filtro_ordem or 'recentes' }}&pagina={{ pagina_atual + 1 }}">
+        Próxima
+        </a>
+        {% endif %}
+</div>
+
+<script>
+    const indicesImagensProdutos = {};
+
+    function atualizarImagemProduto(produtoId, imagem, indice) {
+        const elemento = document.getElementById("imagem-produto-" + produtoId);
+        if (elemento) {
+            elemento.src = "/static/uploads/" + imagem;
+        }
+
+        indicesImagensProdutos[produtoId] = indice;
+
+        const thumbsContainer = document.getElementById("thumbs-produto-" + produtoId);
+        if (thumbsContainer) {
+            const botoes = thumbsContainer.querySelectorAll(".produto-thumb-btn");
+            botoes.forEach(btn => btn.classList.remove("ativo"));
+
+            if (botoes[indice]) {
+                botoes[indice].classList.add("ativo");
+            }
+        }
+    }
+
+    function clicarSetaGaleria(botao) {
+        const produtoId = botao.dataset.produtoId;
+        const direcao = parseInt(botao.dataset.direcao || "0");
+
+        const galeria = document.querySelector('.produto-galeria-box[data-produto-id="' + produtoId + '"]');
+        if (!galeria) return;
+
+        const imagens = JSON.parse(galeria.dataset.imagens || "[]");
+        if (!imagens.length || imagens.length <= 1) return;
+
+        if (indicesImagensProdutos[produtoId] === undefined) {
+            indicesImagensProdutos[produtoId] = 0;
+        }
+
+        let indiceAtual = indicesImagensProdutos[produtoId];
+        let novoIndice = indiceAtual + direcao;
+
+        if (novoIndice < 0) {
+            novoIndice = imagens.length - 1;
+        }
+
+        if (novoIndice >= imagens.length) {
+            novoIndice = 0;
+        }
+
+        atualizarImagemProduto(produtoId, imagens[novoIndice], novoIndice);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const botoesThumb = document.querySelectorAll(".produto-thumb-btn");
+
+        botoesThumb.forEach(function (botao) {
+            botao.addEventListener("click", function () {
+                const produtoId = this.dataset.produtoId;
+                const imagem = this.dataset.imagem;
+                const indice = parseInt(this.dataset.indice || "0");
+
+                atualizarImagemProduto(produtoId, imagem, indice);
+            });
+        });
+    });
+</script>
+
+{% endblock %}

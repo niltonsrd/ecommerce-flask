@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Pedidos</h1>
+            <p>Acompanhe e atualize rapidamente o status dos pedidos da loja.</p>
+        </div>
+    </div>
+
+    {% if pedidos %}
+    <div class="admin-list-grid">
+        {% for pedido in pedidos %}
+        <article class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title-content">
+                    <h2>Pedido #{{ pedido[0] }}</h2>
+                    <p class="admin-card-subtitle">Cliente: {{ pedido[1] }}</p>
+
+                    {% if pedido[3] == "AGUARDANDO_PAGAMENTO" %}
+                    <span class="admin-status aguardando">Aguardando pagamento</span>
+                    {% elif pedido[3] == "PAGO" %}
+                    <span class="admin-status pago">Pago</span>
+                    {% elif pedido[3] == "EM_SEPARACAO" %}
+                    <span class="admin-status separacao">Em separação</span>
+                    {% elif pedido[3] == "ENVIADO" %}
+                    <span class="admin-status enviado">Enviado</span>
+                    {% elif pedido[3] == "ENTREGUE" %}
+                    <span class="admin-status entregue">Entregue</span>
+                    {% elif pedido[3] == "CANCELADO" %}
+                    <span class="admin-status cancelado">Cancelado</span>
+                    {% elif pedido[3] == "FALHA_PAGAMENTO" %}
+                    <span class="admin-status inactive">Falha no pagamento</span>
+                    {% else %}
+                    <span class="admin-status info">{{ pedido[3] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="admin-actions-vertical">
+                    <a href="/admin/pedidos/status/{{ pedido[0] }}/PAGO" class="btn-admin-success">Marcar como Pago</a>
+                    <a href="/admin/pedidos/status/{{ pedido[0] }}/EM_SEPARACAO" class="btn-admin-info">Em separação</a>
+                    <a href="/admin/pedidos/status/{{ pedido[0] }}/ENVIADO" class="btn-admin-warning">Marcar como
+                        Enviado</a>
+                    <a href="/admin/pedidos/status/{{ pedido[0] }}/ENTREGUE" class="btn-admin-success">Marcar como
+                        Entregue</a>
+                    <a href="/admin/pedidos/status/{{ pedido[0] }}/CANCELADO" class="btn-admin-danger">Cancelar
+                        Pedido</a>
+                </div>
+            </div>
+
+            <div class="admin-meta-grid">
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Valor</span>
+                    <span class="admin-meta-value">R$ {{ "%.2f"|format(pedido[2]) }}</span>
+                </div>
+
+                <div class="admin-meta-item">
+                    <span class="admin-meta-label">Data</span>
+                    <span class="admin-meta-value">{{ pedido[4] }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty">Nenhum pedido encontrado.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

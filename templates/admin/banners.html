@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Banners</h1>
+
+<a href="/admin/banners/novo">
+    <button>Novo Banner</button>
+</a>
+
+<hr>
+
+{% for banner in banners %}
+
+<div>
+    {% if banner[3] %}
+    <img src="/static/uploads/{{ banner[3] }}" width="200">
+    <br><br>
+    {% endif %}
+
+    <h3>{{ banner[1] }}</h3>
+    <p><strong>Subtítulo:</strong> {{ banner[2] }}</p>
+    <p><strong>Link:</strong> {{ banner[4] }}</p>
+    <p><strong>Status:</strong> {% if banner[5] %}Ativo{% else %}Inativo{% endif %}</p>
+    <p><strong>Ordem:</strong> {{ banner[6] }}</p>
+
+    <a href="/admin/banners/editar/{{ banner[0] }}">Editar</a>
+    |
+    <a href="/admin/banners/excluir/{{ banner[0] }}">Excluir</a>
+</div>
+
+<hr>
+
+{% endfor %}
+
+{% endblock %}

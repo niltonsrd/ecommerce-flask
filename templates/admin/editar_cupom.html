@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/cupom.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Editar Cupom</h1>
+            <p>Atualize as configurações do cupom, regras de uso, período de validade e status.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/cupons" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" class="admin-form">
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group">
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" name="codigo" value="{{ cupom[1] }}" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="percentual" {% if cupom[2]=='percentual' %}selected{% endif %}>Percentual (%)
+                        </option>
+                        <option value="fixo" {% if cupom[2]=='fixo' %}selected{% endif %}>Valor fixo (R$)</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor">Valor</label>
+                    <input type="number" id="valor" step="0.01" min="0" name="valor" value="{{ cupom[3] }}" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor_minimo">Valor mínimo do pedido</label>
+                    <input type="number" id="valor_minimo" step="0.01" min="0" name="valor_minimo"
+                        value="{{ cupom[4] }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="limite_uso">Limite de uso</label>
+                    <input type="number" id="limite_uso" min="0" name="limite_uso" value="{{ cupom[5] }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="ativo">Status</label>
+                    <select id="ativo" name="ativo" required>
+                        <option value="true" {% if cupom[7] %}selected{% endif %}>Ativo</option>
+                        <option value="false" {% if not cupom[7] %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="data_inicio">Data de início</label>
+                    <input type="datetime-local" id="data_inicio" name="data_inicio"
+                        value="{{ cupom[8].strftime('%Y-%m-%dT%H:%M') if cupom[8] else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="data_fim">Data de fim</label>
+                    <input type="datetime-local" id="data_fim" name="data_fim"
+                        value="{{ cupom[9].strftime('%Y-%m-%dT%H:%M') if cupom[9] else '' }}">
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/cupons" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Atualizar Cupom</button>
+            </div>
+
+        </form>
+    </section>
+</section>
+
+{% endblock %}

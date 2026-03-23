@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enderecos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Novo endereço</h2>
+                        <p class="account-section-description">
+                            Preencha os dados de entrega com atenção para garantir uma compra sem atritos.
+                        </p>
+                    </div>
+                </div>
+
+                <form method="POST" action="/enderecos/novo" class="endereco-form-card">
+
+                    {% if erro %}
+                    <div class="settings-alert settings-alert-error">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+
+                    <div class="endereco-form-grid">
+
+                        <div class="form-group form-group-full">
+                            <label for="nome_destinatario">Nome do destinatário</label>
+                            <input type="text" id="nome_destinatario" name="nome_destinatario"
+                                value="{{ request.form.get('nome_destinatario', '') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep" value="{{ request.form.get('cep', '') }}" required>
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label for="logradouro">Logradouro</label>
+                            <input type="text" id="logradouro" name="logradouro"
+                                value="{{ request.form.get('logradouro', '') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" name="numero" value="{{ request.form.get('numero', '') }}"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento"
+                                value="{{ request.form.get('complemento', '') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro" value="{{ request.form.get('bairro', '') }}"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" value="{{ request.form.get('cidade', '') }}"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <input type="text" id="estado" name="estado" maxlength="2"
+                                value="{{ request.form.get('estado', '') }}" required>
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label for="referencia">Referência</label>
+                            <input type="text" id="referencia" name="referencia"
+                                value="{{ request.form.get('referencia', '') }}">
+                        </div>
+
+                    </div>
+
+                    <div class="endereco-form-footer">
+                        <label class="checkbox-principal">
+                            <input type="checkbox" name="principal" {% if request.form.get('principal') %}checked{%
+                                endif %}>
+                            <span>Definir como endereço principal</span>
+                        </label>
+
+                        <div class="endereco-form-actions">
+                            <a href="/enderecos" class="btn-secondary">Voltar</a>
+                            <button type="submit" class="btn-primary">Salvar endereço</button>
+                        </div>
+                    </div>
+
+                </form>
+            </section>
+
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const cepInput = document.getElementById("cep");
+
+        const logradouro = document.getElementById("logradouro");
+        const bairro = document.getElementById("bairro");
+        const cidade = document.getElementById("cidade");
+        const estado = document.getElementById("estado");
+
+        let cepAnterior = "";
+
+        cepInput.addEventListener("input", async function () {
+
+            // Remove tudo que não for número
+            let cep = cepInput.value.replace(/\D/g, "");
+
+            // ============================
+            // Máscara automática
+            // ============================
+            if (cep.length > 5) {
+                cepInput.value = cep.slice(0, 5) + "-" + cep.slice(5, 8);
+            } else {
+                cepInput.value = cep;
+            }
+
+            // ============================
+            // Só busca quando tiver 8 dígitos
+            // ============================
+            if (cep.length !== 8) return;
+
+            // Evita múltiplas requisições do mesmo CEP
+            if (cep === cepAnterior) return;
+            cepAnterior = cep;
+
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    cepInput.classList.add("input-error");
+                    alert("CEP inválido");
+
+                    return;
+                }
+                cepInput.classList.remove("input-error");
+
+
+                // Preenche automático
+                logradouro.value = data.logradouro || "";
+                bairro.value = data.bairro || "";
+                cidade.value = data.localidade || "";
+                estado.value = data.uf || "";
+                
+                document.getElementById("numero").focus();
+
+
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+            }
+
+        });
+
+    });
+</script>
+{% endblock %}

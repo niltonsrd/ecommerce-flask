@@ -1,0 +1,52 @@
+<div class="account-sidebar-card">
+    <div class="account-sidebar-user">
+        <div class="account-profile-avatar small">
+            {% if session.get("usuario_foto") %}
+            <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}" alt="Foto de perfil">
+            {% else %}
+            <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
+            {% endif %}
+        </div>
+
+        <div>
+            <strong>{{ session.get("usuario_nome") }}</strong>
+            <span>
+                {% if session.get("usuario_tipo") %}
+                {{ session.get("usuario_tipo") | capitalize }}
+                {% else %}
+                Cliente
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <nav class="account-sidebar-nav">
+        <a href="/minha-conta" class="{% if pagina_conta == 'visao_geral' %}active{% endif %}">
+            Visão geral
+        </a>
+
+        <a href="/meus-pedidos" class="{% if pagina_conta == 'pedidos' %}active{% endif %}">
+            Meus pedidos
+        </a>
+
+        <a href="/favoritos" class="{% if pagina_conta == 'favoritos' %}active{% endif %}">
+            Favoritos
+        </a>
+
+        <a href="/enderecos" class="{% if pagina_conta == 'enderecos' %}active{% endif %}">
+            Endereços
+        </a>
+
+        <a href="/configuracoes-conta" class="{% if pagina_conta == 'configuracoes' %}active{% endif %}">
+            Configurações
+        </a>
+
+        <a href="/carrinho" class="{% if pagina_conta == 'carrinho' %}active{% endif %}">
+            Carrinho
+        </a>
+
+        <a href="/logout" class="danger">
+            Sair
+        </a>
+    </nav>
+</div>

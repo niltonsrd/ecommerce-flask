@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/cupom.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Novo Cupom</h1>
+            <p>Crie cupons de desconto para campanhas, promoções e estratégias de venda.</p>
+        </div>
+
+        <div class="admin-toolbar">
+            <a href="/admin/cupons" class="btn-admin-outline">Voltar</a>
+        </div>
+    </div>
+
+    <section class="admin-form-panel">
+        <form method="POST" class="admin-form">
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group">
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" name="codigo" placeholder="Ex: PROMO10" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="percentual">Percentual (%)</option>
+                        <option value="fixo">Valor fixo (R$)</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor">Valor</label>
+                    <input type="number" id="valor" name="valor" step="0.01" min="0" placeholder="Ex: 10" required>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="valor_minimo">Valor mínimo do pedido</label>
+                    <input type="number" id="valor_minimo" name="valor_minimo" step="0.01" value="0">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="limite_uso">Limite de uso</label>
+                    <input type="number" id="limite_uso" name="limite_uso" value="0">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="ativo">Status</label>
+                    <select id="ativo" name="ativo">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="data_inicio">Data de início</label>
+                    <input type="datetime-local" id="data_inicio" name="data_inicio">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="data_fim">Data de fim</label>
+                    <input type="datetime-local" id="data_fim" name="data_fim">
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a href="/admin/cupons" class="btn-admin-danger">Cancelar</a>
+                <button type="submit" class="btn-admin">Salvar Cupom</button>
+            </div>
+
+        </form>
+    </section>
+</section>
+
+{% endblock %}

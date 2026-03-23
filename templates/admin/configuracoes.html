@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="config-page">
+    <div class="config-page-header">
+        <span class="section-kicker">Admin</span>
+        <h1>Configurações da Loja</h1>
+        <p>
+            Personalize identidade, contato, localização e tema visual da loja.
+            As cores escolhidas aqui definem a aparência do site inteiro.
+        </p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="config-form card-glass">
+        <div class="config-grid">
+            <section class="config-section">
+                <div class="config-section-header">
+                    <h2>Identidade da loja</h2>
+                    <p>Informações principais exibidas no site.</p>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="nome_loja">Nome da loja</label>
+                    <input type="text" name="nome_loja" id="nome_loja" placeholder="Nome da loja"
+                        value="{{ config[1] if config else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="slogan">Slogan</label>
+                    <input type="text" name="slogan" id="slogan" placeholder="Slogan"
+                        value="{{ config[2] if config else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="texto_rodape">Texto do rodapé</label>
+                    <input type="text" name="texto_rodape" id="texto_rodape" placeholder="Texto do rodapé"
+                        value="{{ config[5] if config else '' }}">
+                </div>
+            </section>
+
+            <section class="config-section">
+                <div class="config-section-header">
+                    <h2>Contato e localização</h2>
+                    <p>Dados para comunicação e identificação da loja.</p>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="email_contato">Email de contato</label>
+                    <input type="email" name="email_contato" id="email_contato" placeholder="Email de contato"
+                        value="{{ config[3] if config else '' }}">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="whatsapp">WhatsApp</label>
+                    <input type="text" name="whatsapp" id="whatsapp" placeholder="WhatsApp"
+                        value="{{ config[4] if config else '' }}">
+                </div>
+
+                <div class="config-row">
+                    <div class="admin-form-group">
+                        <label for="cidade_loja">Cidade</label>
+                        <input type="text" name="cidade_loja" id="cidade_loja" placeholder="Cidade"
+                            value="{{ config[8] if config and config[8] else '' }}">
+                    </div>
+
+                    <div class="admin-form-group config-estado">
+                        <label for="estado_loja">Estado</label>
+                        <input type="text" name="estado_loja" id="estado_loja" maxlength="2" placeholder="UF"
+                            value="{{ config[9] if config and config[9] else '' }}">
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-section config-theme-section">
+                <div class="config-section-header">
+                    <h2>Tema da loja</h2>
+                    <p>Essas opções controlam a identidade visual principal do site.</p>
+                </div>
+            
+                <div class="config-colors config-colors-extended">
+                    <div class="admin-form-group color-field">
+                        <label for="cor_primaria">Cor primária</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_primaria" id="cor_primaria"
+                                value="{{ config[6] if config and config[6] else '#6366f1' }}">
+                            <span class="color-value" id="colorPrimariaValue">
+                                {{ config[6] if config and config[6] else '#6366f1' }}
+                            </span>
+                        </div>
+                    </div>
+            
+                    <div class="admin-form-group color-field">
+                        <label for="cor_secundaria">Cor secundária</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_secundaria" id="cor_secundaria"
+                                value="{{ config[7] if config and config[7] else '#a855f7' }}">
+                            <span class="color-value" id="colorSecundariaValue">
+                                {{ config[7] if config and config[7] else '#a855f7' }}
+                            </span>
+                        </div>
+                    </div>
+            
+                    <div class="admin-form-group color-field">
+                        <label for="cor_fundo">Cor de fundo</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_fundo" id="cor_fundo"
+                                value="{{ config[10] if config and config[10] else '#06080f' }}">
+                            <span class="color-value" id="colorFundoValue">
+                                {{ config[10] if config and config[10] else '#06080f' }}
+                            </span>
+                        </div>
+                    </div>
+            
+                    <div class="admin-form-group color-field">
+                        <label for="cor_fundo_secundario">Cor de fundo secundária</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_fundo_secundario" id="cor_fundo_secundario"
+                                value="{{ config[11] if config and config[11] else '#090d16' }}">
+                            <span class="color-value" id="colorFundoSecundarioValue">
+                                {{ config[11] if config and config[11] else '#090d16' }}
+                            </span>
+                        </div>
+                    </div>
+            
+                    <div class="admin-form-group color-field">
+                        <label for="cor_texto">Cor do texto principal</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_texto" id="cor_texto"
+                                value="{{ config[12] if config and config[12] else '#f8fafc' }}">
+                            <span class="color-value" id="colorTextoValue">
+                                {{ config[12] if config and config[12] else '#f8fafc' }}
+                            </span>
+                        </div>
+                    </div>
+            
+                    <div class="admin-form-group color-field">
+                        <label for="cor_texto_secundario">Cor do texto secundário</label>
+                        <div class="color-input-wrap">
+                            <input type="color" name="cor_texto_secundario" id="cor_texto_secundario"
+                                value="{{ config[13] if config and config[13] else '#94a3b8' }}">
+                            <span class="color-value" id="colorTextoSecundarioValue">
+                                {{ config[13] if config and config[13] else '#94a3b8' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="admin-form-group logo-upload-group">
+                    <label for="logo">Logo da loja</label>
+                    <input type="file" name="logo" id="logo" accept="image/*">
+                    {% if config and config[14] %}
+                    <div class="logo-preview-box">
+                        <img src="{{ url_for('static', filename='uploads/' + config[14]) }}" alt="Logo atual"
+                            class="logo-preview-admin">
+                    </div>
+                    {% endif %}
+                </div>
+            
+                <div class="theme-preview">
+                    <span class="theme-preview-label">Prévia do tema</span>
+                    <div class="theme-preview-card" id="themePreviewCard" style="
+                            --preview-primary: {{ config[6] if config and config[6] else '#6366f1' }};
+                            --preview-secondary: {{ config[7] if config and config[7] else '#a855f7' }};
+                            --preview-bg: {{ config[10] if config and config[10] else '#06080f' }};
+                            --preview-bg-2: {{ config[11] if config and config[11] else '#090d16' }};
+                            --preview-text: {{ config[12] if config and config[12] else '#f8fafc' }};
+                            --preview-muted: {{ config[13] if config and config[13] else '#94a3b8' }};
+                        ">
+                        <div class="theme-preview-badge">Preview</div>
+                        <h3>Nova identidade visual da sua loja</h3>
+                        <p>Botões, destaques, fundo, texto e elementos principais seguirão esse tema.</p>
+            
+                        <div class="theme-preview-actions">
+                            <span class="theme-preview-btn primary">Primário</span>
+                            <span class="theme-preview-btn secondary">Secundário</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="config-actions">
+            <button type="submit" class="btn-primary">Salvar configurações</button>
+            <a href="/admin" class="btn-secondary">Voltar ao painel</a>
+        </div>
+    </form>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const campos = {
+            corPrimaria: document.getElementById("cor_primaria"),
+            corSecundaria: document.getElementById("cor_secundaria"),
+            corFundo: document.getElementById("cor_fundo"),
+            corFundoSecundario: document.getElementById("cor_fundo_secundario"),
+            corTexto: document.getElementById("cor_texto"),
+            corTextoSecundario: document.getElementById("cor_texto_secundario"),
+        };
+
+        const valores = {
+            corPrimaria: document.getElementById("colorPrimariaValue"),
+            corSecundaria: document.getElementById("colorSecundariaValue"),
+            corFundo: document.getElementById("colorFundoValue"),
+            corFundoSecundario: document.getElementById("colorFundoSecundarioValue"),
+            corTexto: document.getElementById("colorTextoValue"),
+            corTextoSecundario: document.getElementById("colorTextoSecundarioValue"),
+        };
+
+        const preview = document.getElementById("themePreviewCard");
+
+        function atualizarPreview() {
+            if (!preview) return;
+
+            preview.style.setProperty("--preview-primary", campos.corPrimaria.value);
+            preview.style.setProperty("--preview-secondary", campos.corSecundaria.value);
+            preview.style.setProperty("--preview-bg", campos.corFundo.value);
+            preview.style.setProperty("--preview-bg-2", campos.corFundoSecundario.value);
+            preview.style.setProperty("--preview-text", campos.corTexto.value);
+            preview.style.setProperty("--preview-muted", campos.corTextoSecundario.value);
+
+            valores.corPrimaria.textContent = campos.corPrimaria.value;
+            valores.corSecundaria.textContent = campos.corSecundaria.value;
+            valores.corFundo.textContent = campos.corFundo.value;
+            valores.corFundoSecundario.textContent = campos.corFundoSecundario.value;
+            valores.corTexto.textContent = campos.corTexto.value;
+            valores.corTextoSecundario.textContent = campos.corTextoSecundario.value;
+        }
+
+        Object.values(campos).forEach((campo) => {
+            if (campo) {
+                campo.addEventListener("input", atualizarPreview);
+            }
+        });
+
+        atualizarPreview();
+    });
+</script>
+
+{% endblock %}

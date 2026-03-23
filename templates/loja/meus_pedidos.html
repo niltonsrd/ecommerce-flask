@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minha-conta.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/meus-pedidos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+    <div class="account-layout">
+
+        <aside class="account-sidebar">
+            {% include "loja/_account_sidebar.html" %}
+        </aside>
+
+        <div class="account-main">
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div>
+                        <span class="section-kicker">Minha conta</span>
+                        <h2>Meus Pedidos</h2>
+                        <p class="account-section-description">
+                            Acompanhe seus pedidos, consulte o status atual e visualize os detalhes de cada compra.
+                        </p>
+                    </div>
+                </div>
+
+                {% if pedidos %}
+                <div class="pedidos-lista account-content-block">
+                    {% for pedido in pedidos %}
+                    <article class="pedido-card">
+                        <div class="pedido-card-top">
+                            <div>
+                                <h3>Pedido #{{ pedido[0] }}</h3>
+                                <p class="pedido-data">Realizado em {{ pedido[3] }}</p>
+                            </div>
+
+                            <div class="pedido-valor">
+                                R$ {{ "%.2f"|format(pedido[1]) }}
+                            </div>
+                        </div>
+
+                        <div class="pedido-status-area">
+                            <span class="pedido-status-label">Status</span>
+
+                            {% if pedido[2] == "AGUARDANDO_PAGAMENTO" %}
+                            <span class="pedido-status aguardando">Aguardando pagamento</span>
+                            {% elif pedido[2] == "PAGO" %}
+                            <span class="pedido-status pago">Pago</span>
+                            {% elif pedido[2] == "EM_SEPARACAO" %}
+                            <span class="pedido-status separacao">Em separação</span>
+                            {% elif pedido[2] == "ENVIADO" %}
+                            <span class="pedido-status enviado">Enviado</span>
+                            {% elif pedido[2] == "ENTREGUE" %}
+                            <span class="pedido-status entregue">Entregue</span>
+                            {% elif pedido[2] == "CANCELADO" %}
+                            <span class="pedido-status cancelado">Cancelado</span>
+                            {% else %}
+                            <span class="pedido-status neutro">{{ pedido[2] }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="pedido-actions">
+                            <a href="/meu-pedido/{{ pedido[0] }}" class="btn-primary">Ver detalhes</a>
+                        
+                            {% if pedido[2] == "AGUARDANDO_PAGAMENTO" %}
+                            <a href="/checkout/pagamento/{{ pedido[0] }}" class="btn-secondary">Pagar agora</a>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="pedidos-empty account-content-block">
+                    <span class="section-kicker">Sem pedidos</span>
+                    <h3>Você ainda não fez nenhum pedido</h3>
+                    <p>Quando você realizar uma compra, seus pedidos aparecerão aqui para acompanhamento.</p>
+                    <a href="/produtos" class="btn-primary">Ir para a loja</a>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
