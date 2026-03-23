@@ -1,10 +1,25 @@
 import psycopg2
-from config import DB_HOST, DB_NAME, DB_USER, DB_PASSWORD
+import os
+from urllib.parse import urlparse
 
 
 def get_connection():
-    conn = psycopg2.connect(
-        host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASSWORD
-    )
+    database_url = os.getenv("DATABASE_URL")
 
-    return conn
+    if database_url:
+        result = urlparse(database_url)
+        return psycopg2.connect(
+            database=result.path[1:],
+            user=result.username,
+            password=result.password,
+            host=result.hostname,
+            port=result.port
+        )
+
+    # fallback local
+    return psycopg2.connect(
+        host="localhost",
+        database="seu_banco",
+        user="postgres",
+        password="sua_senha"
+    )
