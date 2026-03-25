@@ -50,15 +50,25 @@ def login():
 
         usuario = login_usuario(email, senha)
 
+        print("USUARIO:", usuario)
+
         if usuario:
+            for i, campo in enumerate(usuario):
+                print(f"Índice {i}: {campo} | Tipo: {type(campo)}")
+
             session.clear()
             session["usuario_id"] = usuario[0]
             session["usuario_nome"] = usuario[1]
             session["usuario_email"] = usuario[2]
-            session["usuario_tipo"] = usuario[4]
-            session["usuario_foto"] = usuario[5] if len(usuario) > 5 else None
+            session["usuario_tipo"] = usuario[4] or "cliente"
 
-            if usuario[4] == "admin":
+            foto_usuario = None
+            if len(usuario) > 5 and isinstance(usuario[5], str):
+                foto_usuario = usuario[5]
+
+            session["usuario_foto"] = foto_usuario
+
+            if session["usuario_tipo"] == "admin":
                 return redirect("/admin")
 
             return redirect("/produtos")

@@ -60,6 +60,10 @@ from controllers.home_bloco_controller import (
     editar_bloco_home_controller,
     excluir_bloco_home_controller,
 )
+from repositories.pagamento_repository import buscar_pagamento_por_pedido, atualizar_status_pagamento
+from repositories.pedido_repository import (
+    atualizar_status as atualizar_status_pedido_db,
+)
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -204,7 +208,7 @@ def pedidos_admin():
 
     lista = pedidos()
 
-    return render_template("admin/pedidos.html", pedidos=lista)
+    return render_template("admin/pedidos.html", pedidos=lista, buscar_pagamento_por_pedido=buscar_pagamento_por_pedido)
 
 
 @admin_bp.route("/pedidos/status/<int:id>/<status>")
@@ -941,3 +945,39 @@ def editar_categoria_page(id):
         return redirect("/admin/categorias")
 
     return render_template("admin/editar_categoria.html", categoria=categoria)
+
+
+@admin_bp.route("/pagamentos/aprovar/<int:pedido_id>")
+def aprovar_pagamento(pedido_id):
+
+    if not usuario_logado():
+        return redirect("/login")
+
+    if not admin_logado():
+        return redirect("/produtos")
+
+    pagamento = buscar_pagamento_por_pedido(pedido_id)
+
+    if pagamento:
+        atualizar_status_pagamento(pagamento["id"], "PAGO")
+        atualizar_status_pedido_db(pedido_id, "PAGO")
+
+    return redirect("/admin/pedidos")
+
+
+@admin_bp.route("/pagamentos/recusar/<int:pedido_id>")
+def recusar_pagamento(pedido_id):
+
+    if not usuario_logado():
+        return redirect("/login")
+
+    if not admin_logado():
+        return redirect("/produtos")
+
+    pagamento = buscar_pagamento_por_pedido(pedido_id)
+
+    if pagamento:
+        atualizar_status_pagamento(pagamento["id"], "RECUSADO")
+        atualizar_status_pedido_db(pedido_id, "FALHA_PAGAMENTO")
+
+    return redirect("/admin/pedidos")

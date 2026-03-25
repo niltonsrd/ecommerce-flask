@@ -391,6 +391,9 @@
 
 
 .checkout-btn-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 54px;
     padding: 0 22px;
     border: 0;
@@ -558,6 +561,9 @@
 }
 
 .checkout-btn-finalizar {
+    display: block;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     min-height: 62px;
     margin-top: 22px;
@@ -671,3 +677,4 @@
         border-radius: 14px;
     }
 }
+

@@ -31,14 +31,9 @@ def finalizar_checkout():
         resultado = checkout_service.processar_checkout(usuario_id, request.form)
         pedido = resultado["pedido"]
 
-        forma_pagamento = str(request.form.get("forma_pagamento") or "").strip().upper()
-
-        if forma_pagamento == "PIX":
-            return redirect(
-                url_for("checkout.exibir_pagamento_checkout", pedido_id=pedido["id"])
-            )
-
-        return redirect(url_for("checkout.checkout_sucesso", pedido_id=pedido["id"]))
+        return redirect(
+            url_for("checkout.exibir_pagamento_checkout", pedido_id=pedido["id"])
+        )
 
     except Exception as e:
         flash(str(e), "erro")
@@ -53,6 +48,7 @@ def exibir_pagamento_checkout(pedido_id):
         return redirect(url_for("auth.login"))
 
     from repositories import checkout_repository, pagamento_repository
+    from datetime import datetime, timedelta
 
     pedido = checkout_repository.buscar_pedido_por_id(pedido_id, usuario_id)
 
@@ -69,22 +65,42 @@ def exibir_pagamento_checkout(pedido_id):
             "status": "PENDENTE",
             "metodo": pedido.get("forma_pagamento", "PIX"),
             "gateway": "MANUAL",
-            "detalhes": "Faça o PIX e envie o comprovante para confirmação manual.",
+            "detalhes": "Pagamento aguardando instruções.",
         }
 
-    pix = gerar_dados_pix(valor=float(pagamento["valor"]), pedido_id=int(pedido["id"]))
+    metodo = (pagamento.get("metodo") or "").upper()
+
+    pix = None
+    boleto = None
+    cartao = None
+
+    if metodo == "PIX":
+        pix = gerar_dados_pix(
+            valor=float(pagamento["valor"]), pedido_id=int(pedido["id"])
+        )
+
+    elif metodo == "BOLETO":
+        vencimento = datetime.now() + timedelta(days=3)
+        boleto = {
+            "linha_digitavel": "34191.79001 01043.510047 91020.150008 5 12340000010000",
+            "vencimento": vencimento.strftime("%d/%m/%Y"),
+            "instrucao": pagamento.get("detalhes")
+            or "Pague o boleto até a data de vencimento.",
+        }
+
+    elif metodo == "CARTAO":
+        cartao = {
+            "instrucao": pagamento.get("detalhes")
+            or "Pagamento por cartão em modo manual. A confirmação será feita pela loja."
+        }
 
     return render_template(
-        "checkout_pix_manual.html",
+        "checkout_pagamento.html",
         pedido=pedido,
         pagamento=pagamento,
-        chave_pix_loja=pix["chave_pix"],
-        pix_payload=pix["payload_pix"],
-        qr_code_base64=pix["qr_code_base64"],
-        pix_recebedor=pix["recebedor"],
-        pix_cidade=pix["cidade"],
-        pix_banco=pix["banco"],
-        pix_tipo_chave=pix["tipo_chave"],
+        pix=pix,
+        boleto=boleto,
+        cartao=cartao,
     )
 
 

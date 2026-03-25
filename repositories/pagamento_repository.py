@@ -15,7 +15,7 @@ def criar_pagamento(
         valor,
         status,
         gateway,
-        referencia_externa,
+        transacao_id,
         detalhes
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -126,7 +126,7 @@ def salvar_comprovante_pagamento(pedido_id, comprovante_url, observacao_cliente=
         comprovante_url = %s,
         comprovante_enviado_em = NOW(),
         observacao_cliente = %s,
-        status = 'COMPROVANTE_ENVIADO',
+        status = 'EM_ANALISE',
         atualizado_em = NOW()
     WHERE pedido_id = %s
     RETURNING id

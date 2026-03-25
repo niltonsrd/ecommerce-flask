@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from repositories.pagamento_repository import salvar_comprovante_pagamento
 
 
+
 GATEWAY_ATIVO = "MANUAL"
 EXTENSOES_PERMITIDAS = {"png", "jpg", "jpeg", "pdf"}
 

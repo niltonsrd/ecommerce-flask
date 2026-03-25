@@ -1,0 +1,627 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+
+<style>
+    .pagamento-page {
+        padding: 32px 0 56px;
+    }
+
+    .pagamento-shell {
+        display: grid;
+        gap: 26px;
+    }
+
+    .pagamento-hero {
+        display: grid;
+        gap: 18px;
+    }
+
+    .pagamento-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .pagamento-back-btn,
+    .pagamento-link-btn.secondary2 {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 14px;
+        text-decoration: none;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-weight: 700;
+        transition: all 0.25s ease;
+    }
+
+    .pagamento-back-btn:hover,
+    .pagamento-link-btn.secondary2:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pagamento-badge-top {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+    }
+
+    .pagamento-headline {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .pagamento-heading-group {
+        display: grid;
+        gap: 10px;
+    }
+
+    .pagamento-heading-group h1 {
+        margin: 0;
+        font-size: clamp(34px, 6vw, 68px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+    }
+
+    .pagamento-subinfo {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 17px;
+        line-height: 1.6;
+    }
+
+    .pagamento-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 800;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        white-space: nowrap;
+    }
+
+    .pagamento-status-badge::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 12px currentColor;
+    }
+
+    .pagamento-status-badge.pendente {
+        color: #ffd166;
+        border-color: rgba(255, 209, 102, 0.35);
+        background: rgba(255, 209, 102, 0.08);
+    }
+
+    .pagamento-status-badge.analise {
+        color: #6fc8ff;
+        border-color: rgba(111, 200, 255, 0.35);
+        background: rgba(111, 200, 255, 0.08);
+    }
+
+    .pagamento-status-badge.pago {
+        color: #70f0a5;
+        border-color: rgba(112, 240, 165, 0.35);
+        background: rgba(112, 240, 165, 0.08);
+    }
+
+    .pagamento-status-badge.recusado {
+        color: #ff9494;
+        border-color: rgba(255, 148, 148, 0.35);
+        background: rgba(255, 148, 148, 0.08);
+    }
+
+    .pagamento-card {
+        display: grid;
+        gap: 24px;
+        padding: 30px;
+        border-radius: 30px;
+        background:
+            linear-gradient(145deg, rgba(7, 10, 28, 0.96), rgba(11, 16, 42, 0.94));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+            0 24px 60px rgba(0, 0, 0, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .pagamento-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .pagamento-method-wrap {
+        display: grid;
+        gap: 8px;
+    }
+
+    .pagamento-method-label {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+    }
+
+    .pagamento-method-title {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 38px);
+        letter-spacing: -0.03em;
+    }
+
+    .pagamento-method-subtitle {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.6;
+    }
+
+    .pagamento-summary-pill {
+        display: grid;
+        gap: 6px;
+        min-width: 220px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.045);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pagamento-summary-pill span {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+    }
+
+    .pagamento-summary-pill strong {
+        font-size: 26px;
+        line-height: 1;
+    }
+
+    .pagamento-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .pagamento-grid.triple {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pagamento-info-box {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
+        padding: 20px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .pagamento-info-box h4 {
+        margin: 0;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.62);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 800;
+    }
+
+    .pagamento-info-box p {
+        margin: 0;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .pagamento-highlight {
+        color: #fff;
+        font-weight: 800;
+    }
+
+    .pagamento-textarea-wrap {
+        display: grid;
+        gap: 12px;
+    }
+
+    .pagamento-textarea {
+        width: 100%;
+        min-height: 128px;
+        border-radius: 18px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.035);
+        color: #fff;
+        resize: vertical;
+        font: inherit;
+        line-height: 1.6;
+    }
+
+    .pagamento-textarea.compact {
+        min-height: 92px;
+    }
+
+    .pagamento-copy-btn,
+    .pagamento-link-btn.primary2 {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 16px;
+        font-weight: 800;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(90deg, #4f1fff, #ea004e);
+        box-shadow: 0 10px 24px rgba(112, 31, 255, 0.26);
+        transition: all 0.25s ease;
+    }
+
+    .pagamento-copy-btn:hover,
+    .pagamento-link-btn.primary2:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(112, 31, 255, 0.32);
+    }
+
+    .pagamento-copy-btn.copiado {
+        background: linear-gradient(90deg, #00b35f, #00c878);
+        box-shadow: 0 10px 24px rgba(0, 179, 95, 0.28);
+    }
+
+    .pagamento-qr-panel {
+        display: grid;
+        place-items: center;
+        min-height: 100%;
+    }
+
+    .pagamento-qr-box {
+        background: #fff;
+        border-radius: 24px;
+        padding: 14px;
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.25);
+    }
+
+    .pagamento-qr-box img {
+        width: min(290px, 100%);
+        display: block;
+        border-radius: 14px;
+    }
+
+    .pagamento-helper {
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.8;
+    }
+
+    .pagamento-checklist {
+        margin: 0;
+        padding-left: 18px;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.85;
+    }
+
+    .pagamento-form {
+        display: grid;
+        gap: 18px;
+    }
+
+    .pagamento-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .pagamento-link-btn,
+    .pagamento-form .checkout-btn-finalizar {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 58px;
+        padding: 0 24px;
+        border-radius: 18px;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .pagamento-link-btn.primary {
+        background: linear-gradient(90deg, #4f1fff, #ea004e);
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(112, 31, 255, 0.26);
+    }
+
+    .pagamento-link-btn.secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .pagamento-note {
+        padding: 18px 20px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.78);
+        line-height: 1.8;
+    }
+
+    @media (max-width: 920px) {
+
+        .pagamento-grid,
+        .pagamento-grid.triple {
+            grid-template-columns: 1fr;
+        }
+
+        .pagamento-card {
+            padding: 22px;
+            border-radius: 24px;
+        }
+
+        .pagamento-summary-pill {
+            min-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page pagamento-page">
+    <div class="checkout-container">
+        <div class="pagamento-shell">
+            <div class="pagamento-hero">
+                <div class="pagamento-topbar">
+                    <a href="/meus-pedidos" class="pagamento-back-btn">
+                        ← Voltar para meus pedidos
+                    </a>
+
+                    <span class="pagamento-badge-top">Pagamento</span>
+                </div>
+
+                <div class="pagamento-headline">
+                    <div class="pagamento-heading-group">
+                        <h1>Finalizar pagamento</h1>
+                        <div class="pagamento-subinfo">
+                            Pedido #{{ pedido.id }} • Valor total: R$ {{ '%.2f'|format(pagamento.valor) }}
+                        </div>
+                    </div>
+
+                    {% set status_pagamento = (pagamento.status or '')|upper %}
+                    <div class="pagamento-status-badge
+                        {% if status_pagamento in ['PENDENTE', 'AGUARDANDO_PAGAMENTO'] %}pendente{% endif %}
+                        {% if status_pagamento in ['EM_ANALISE', 'COMPROVANTE_ENVIADO'] %}analise{% endif %}
+                        {% if status_pagamento == 'PAGO' %}pago{% endif %}
+                        {% if status_pagamento == 'RECUSADO' %}recusado{% endif %}
+                    ">
+                        {% if status_pagamento in ['PENDENTE', 'AGUARDANDO_PAGAMENTO'] %}
+                        Aguardando pagamento
+                        {% elif status_pagamento in ['EM_ANALISE', 'COMPROVANTE_ENVIADO'] %}
+                        Pagamento em análise
+                        {% elif status_pagamento == 'PAGO' %}
+                        Pagamento aprovado
+                        {% elif status_pagamento == 'RECUSADO' %}
+                        Pagamento recusado
+                        {% else %}
+                        {{ pagamento.status }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="checkout-alerts">
+                {% for category, message in messages %}
+                <div class="checkout-flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <section class="pagamento-card">
+                <div class="pagamento-card-header">
+                    <div class="pagamento-method-wrap">
+                        <span class="pagamento-method-label">Método escolhido</span>
+
+                        {% if pagamento.metodo == "PIX" %}
+                        <h2 class="pagamento-method-title">PIX</h2>
+                        <p class="pagamento-method-subtitle">
+                            Copie o código ou escaneie o QR Code para pagar com rapidez.
+                        </p>
+                        {% elif pagamento.metodo == "BOLETO" %}
+                        <h2 class="pagamento-method-title">Boleto bancário</h2>
+                        <p class="pagamento-method-subtitle">
+                            Estrutura manual pronta para futura integração automática.
+                        </p>
+                        {% elif pagamento.metodo == "CARTAO" %}
+                        <h2 class="pagamento-method-title">Cartão</h2>
+                        <p class="pagamento-method-subtitle">
+                            Fluxo manual preparado para futura integração com gateway.
+                        </p>
+                        {% else %}
+                        <h2 class="pagamento-method-title">{{ pagamento.metodo }}</h2>
+                        <p class="pagamento-method-subtitle">
+                            Continue com as instruções abaixo para concluir seu pedido.
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="pagamento-summary-pill">
+                        <span>Total do pedido</span>
+                        <strong>R$ {{ '%.2f'|format(pagamento.valor) }}</strong>
+                    </div>
+                </div>
+
+                {% if pagamento.metodo == "PIX" and pix %}
+                <div class="pagamento-grid">
+                    <div class="pagamento-info-box">
+                        <h4>Dados do recebedor</h4>
+                        <p><span class="pagamento-highlight">Recebedor:</span> {{ pix.recebedor }}</p>
+                        <p><span class="pagamento-highlight">Banco:</span> {{ pix.banco }}</p>
+                        <p><span class="pagamento-highlight">Cidade:</span> {{ pix.cidade }}</p>
+                        <p><span class="pagamento-highlight">Tipo de chave:</span> {{ pix.tipo_chave if pix.tipo_chave
+                            else "PIX" }}</p>
+                        <p><span class="pagamento-highlight">Chave PIX:</span> {{ pix.chave_pix }}</p>
+                    </div>
+
+                    <div class="pagamento-info-box pagamento-qr-panel">
+                        <div class="pagamento-qr-box">
+                            <img src="data:image/png;base64,{{ pix.qr_code_base64 }}" alt="QR Code PIX">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagamento-info-box">
+                    <h4>Código PIX copia e cola</h4>
+                    <div class="pagamento-textarea-wrap">
+                        <textarea id="pixCode" readonly class="pagamento-textarea">{{ pix.payload_pix }}</textarea>
+                        <button type="button" class="pagamento-copy-btn" data-copy-target="pixCode">
+                            Copiar código PIX
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pagamento-note">
+                    Depois de pagar, envie o comprovante para a loja. O pagamento ficará em análise até a confirmação
+                    manual.
+                </div>
+
+                <form action="/checkout/pagamento/{{ pedido.id }}/comprovante" method="POST"
+                    enctype="multipart/form-data" class="pagamento-form">
+                    <div class="checkout-form-group">
+                        <label for="comprovante">Comprovante</label>
+                        <input type="file" name="comprovante" id="comprovante" required>
+                    </div>
+
+                    <div class="checkout-form-group">
+                        <label for="observacao_cliente">Observação</label>
+                        <textarea name="observacao_cliente" id="observacao_cliente"
+                            placeholder="Ex.: pagamento realizado pelo app do banco às 21:40"></textarea>
+                    </div>
+
+                    <div class="pagamento-actions">
+                        <button type="submit" class="checkout-btn-finalizar">Enviar comprovante</button>
+                        <a href="/checkout/sucesso/{{ pedido.id }}" class="pagamento-link-btn secondary">Ver resumo do
+                            pedido</a>
+                    </div>
+                </form>
+                {% endif %}
+
+                {% if pagamento.metodo == "BOLETO" and boleto %}
+                <div class="pagamento-info-box">
+                    <h4>Linha digitável</h4>
+                    <div class="pagamento-textarea-wrap">
+                        <textarea id="boletoCode" readonly
+                            class="pagamento-textarea compact">{{ boleto.linha_digitavel }}</textarea>
+                        <button type="button" class="pagamento-copy-btn" data-copy-target="boletoCode">
+                            Copiar código do boleto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pagamento-grid">
+                    <div class="pagamento-info-box">
+                        <h4>Vencimento</h4>
+                        <p>{{ boleto.vencimento }}</p>
+                    </div>
+
+                    <div class="pagamento-info-box">
+                        <h4>Status do pagamento</h4>
+                        <p>O boleto ficará pendente até a confirmação manual da loja.</p>
+                    </div>
+                </div>
+
+                <div class="pagamento-info-box">
+                    <h4>Instruções</h4>
+                    <ul class="pagamento-checklist">
+                        <li>{{ boleto.instrucao }}</li>
+                        <li>Guarde a linha digitável para acompanhar o pagamento.</li>
+                        <li>Após o pagamento, a loja fará a confirmação manual no painel administrativo.</li>
+                        <li>Quando houver gateway integrado, essa emissão poderá ser automática.</li>
+                    </ul>
+                </div>
+
+                <div class="pagamento-actions">
+                    <a href="/checkout/sucesso/{{ pedido.id }}" class="pagamento-link-btn primary2">Finalizar pedido</a>
+                    <a href="/meus-pedidos" class="pagamento-link-btn secondary2">Meus pedidos</a>
+                </div>
+                {% endif %}
+
+                {% if pagamento.metodo == "CARTAO" and cartao %}
+                <div class="pagamento-grid">
+                    <div class="pagamento-info-box">
+                        <h4>Como funciona agora</h4>
+                        <ul class="pagamento-checklist">
+                            <li>{{ cartao.instrucao }}</li>
+                            <li>Seu pedido será criado com pagamento pendente.</li>
+                            <li>O cartão já está preparado para futura integração com gateway.</li>
+                        </ul>
+                    </div>
+
+                    <div class="pagamento-info-box">
+                        <h4>Próxima etapa</h4>
+                        <p>
+                            Assim que a integração automática estiver ativa, o pagamento com cartão poderá ser
+                            processado diretamente nesta etapa.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pagamento-note">
+                    No modo manual, o pedido permanece aguardando confirmação até que a loja aprove o pagamento no
+                    painel administrativo.
+                </div>
+
+                <div class="pagamento-actions">
+                    <a href="/checkout/sucesso/{{ pedido.id }}" class="pagamento-link-btn primary">Finalizar pedido</a>
+                    <a href="/meus-pedidos" class="pagamento-link-btn secondary">Meus pedidos</a>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.querySelectorAll("[data-copy-target]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const targetId = button.getAttribute("data-copy-target");
+            const field = document.getElementById(targetId);
+
+            if (!field) return;
+
+            navigator.clipboard.writeText(field.value).then(function () {
+                const originalText = button.innerText;
+                button.innerText = "Copiado com sucesso!";
+                button.classList.add("copiado");
+
+                setTimeout(function () {
+                    button.innerText = originalText;
+                    button.classList.remove("copiado");
+                }, 2200);
+            });
+        });
+    });
+</script>
+{% endblock %}

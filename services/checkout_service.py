@@ -1,6 +1,7 @@
 from repositories import checkout_repository
 from services import endereco_service, pagamento_service
 from controllers.configuracao_controller import obter_configuracoes_controller
+from services.pagamento_service import criar_pagamento_inicial
 
 
 def calcular_desconto(cupom, subtotal):

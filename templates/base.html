@@ -128,9 +128,9 @@
                     <button type="button" class="account-menu-toggle" id="accountMenuToggle">
     
                         <div class="account-avatar">
-                            {% if session.get("usuario_foto") %}
-                            <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
-                                alt="Foto de perfil">
+                            {% set foto_usuario = session.get("usuario_foto") %}
+                            {% if foto_usuario and foto_usuario is string %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ foto_usuario) }}" alt="Foto de perfil">
                             {% else %}
                             <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
                             {% endif %}
@@ -147,8 +147,9 @@
                     <div class="account-menu-dropdown" id="accountMenuDropdown">
                         <div class="account-menu-profile">
                             <div class="account-avatar account-avatar-large">
-                                {% if session.get("usuario_foto") %}
-                                <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}" alt="Foto de perfil">
+                                {% set foto_usuario = session.get("usuario_foto") %}
+                                {% if foto_usuario and foto_usuario is string %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ foto_usuario) }}" alt="Foto de perfil">
                                 {% else %}
                                 <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
                                 {% endif %}
@@ -224,8 +225,8 @@
                     </div>
                     </div>
                     {% else %}
-                    <a href="/login" class="header-link">Login</a>
-                    <a href="/cadastro" class="header-link">Cadastro</a>
+                    <a href="/login" class="header-link btn-login">Login</a>
+                    <a href="/cadastro" class="header-link btn-cadastro">Cadastro</a>
                     {% endif %}
                     </div>
                     </div>

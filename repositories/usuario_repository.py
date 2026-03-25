@@ -1,6 +1,22 @@
 from database.db import get_connection
 
 
+def _normalizar_usuario(row, colunas):
+    if not row:
+        return None
+
+    dados = dict(zip(colunas, row))
+
+    return (
+        dados.get("id"),
+        dados.get("nome"),
+        dados.get("email"),
+        dados.get("senha"),
+        dados.get("tipo", "cliente"),
+        dados.get("foto"),
+    )
+
+
 def criar_usuario(nome, email, senha):
     conn = get_connection()
     cursor = conn.cursor()
@@ -23,15 +39,15 @@ def buscar_usuario_por_email(email):
     cursor = conn.cursor()
 
     query = "SELECT * FROM usuarios WHERE email = %s"
-
     cursor.execute(query, (email,))
 
     usuario = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description] if cursor.description else []
 
     cursor.close()
     conn.close()
 
-    return usuario
+    return _normalizar_usuario(usuario, colunas)
 
 
 def atualizar_usuario(usuario_id, nome):
@@ -79,8 +95,9 @@ def buscar_usuario_por_id(usuario_id):
 
     cursor.execute(query, (usuario_id,))
     usuario = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description] if cursor.description else []
 
     cursor.close()
     conn.close()
 
-    return usuario
+    return _normalizar_usuario(usuario, colunas)
