@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido #{{ pedido.id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/pedido-comprovante.css') }}">
+</head>
+
+<body>
+
+    <div class="comprovante-page">
+
+        <div class="comprovante-toolbar">
+            <button onclick="window.print()" class="comprovante-btn">Imprimir</button>
+            <a href="/admin/pedidos/{{ pedido.id }}" class="comprovante-btn">Voltar ao pedido</a>
+        </div>
+
+        <div class="comprovante-sheet">
+
+            <div class="comprovante-header">
+                <div class="comprovante-brand">
+                    <h1>Pedido</h1>
+                    <h4>
+                        Documento para conferência, atendimento e impressão.
+                        Pode ser usado como comprovante interno e resumo do pedido do cliente.
+                    </h4>
+                </div>
+
+                <div class="comprovante-meta">
+                    <span>Pedido</span>
+                    <strong>#{{ pedido.id }}</strong>
+                    <small>{{ pedido.status or 'PENDENTE' }}</small>
+                </div>
+            </div>
+
+            <div class="comprovante-body">
+
+                <div class="comprovante-grid">
+                    <div class="comprovante-box">
+                        <h3>Cliente</h3>
+                        <div>
+                            <strong>{{ pedido.cliente_nome }}</strong><br>
+                            {{ pedido.cliente_email or '-' }}<br>
+                            {{ pedido.cliente_telefone or '-' }}
+                        </div>
+                    </div>
+
+                    <div class="comprovante-box">
+                        <h3>Pedido</h3>
+                        <div>
+                            <strong>Forma de pagamento:</strong> {{ pedido.forma_pagamento or '-' }}<br>
+                            <strong>Cupom:</strong> {{ pedido.cupom_codigo or 'Não usado' }}<br>
+                            <strong>Modalidade:</strong> {{ pedido.modalidade_entrega or '-' }}<br>
+                            <strong>Prazo:</strong> {{ pedido.prazo_entrega or '-' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comprovante-box">
+                    <h3>Endereço de Entrega</h3>
+                    <div>
+                        {% set rua = pedido.rua or pedido.logradouro %}
+                    
+                        {% if rua or pedido.numero %}
+                        <strong>{{ rua or '' }}</strong>{% if pedido.numero %}, {{ pedido.numero }}{% endif %}
+                        {% endif %}
+                    
+                        {% if pedido.complemento %}
+                        <br>{{ pedido.complemento }}
+                        {% endif %}
+                    
+                        {% if pedido.bairro %}
+                        <br>{{ pedido.bairro }}
+                        {% endif %}
+                    
+                        {% if pedido.cidade or pedido.estado %}
+                        <br>{{ pedido.cidade or '' }}{% if pedido.estado %}/{{ pedido.estado }}{% endif %}
+                        {% endif %}
+                    
+                        {% if pedido.cep %}
+                        <br>CEP {{ pedido.cep }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="comprovante-table-wrap">
+                    <table class="comprovante-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Tamanho</th>
+                                <th>Quantidade</th>
+                                <th>Preço</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedido.itens %}
+                            <tr>
+                                <td><strong>{{ item.produto_nome }}</strong></td>
+                                <td>{{ item.tamanho_nome or '-' }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>R$ {{ "%.2f"|format(item.preco or 0) }}</td>
+                                <td><strong>R$ {{ "%.2f"|format((item.preco or 0) * (item.quantidade or 0)) }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="comprovante-totais">
+                    <div class="comprovante-total-row">
+                        <span>Subtotal</span>
+                        <strong>R$ {{ "%.2f"|format(pedido.subtotal or 0) }}</strong>
+                    </div>
+
+                    <div class="comprovante-total-row">
+                        <span>Desconto</span>
+                        <strong>R$ {{ "%.2f"|format(pedido.desconto or 0) }}</strong>
+                    </div>
+
+                    <div class="comprovante-total-row">
+                        <span>Frete</span>
+                        <strong>R$ {{ "%.2f"|format(pedido.valor_frete or 0) }}</strong>
+                    </div>
+
+                    <div class="comprovante-total-row final">
+                        <span>Total Geral</span>
+                        <strong>R$ {{ "%.2f"|format(pedido.valor_total or 0) }}</strong>
+                    </div>
+                </div>
+
+                <div class="comprovante-box">
+                    <h3>Observações</h3>
+                    <div>{{ pedido.observacoes or 'Nenhuma observação informada.' }}</div>
+                </div>
+
+            </div>
+
+            <div class="comprovante-footer">
+                Este comprovante foi gerado pelo painel administrativo da loja e pode ser usado para
+                conferência, separação, atendimento ao cliente e impressão interna.
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

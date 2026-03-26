@@ -176,6 +176,7 @@ def processar_checkout(usuario_id, form_data):
         valor_frete=valor_frete,
         valor_total=valor_total,
         modalidade_entrega_id=modalidade["id"],
+        modalidade_entrega=modalidade["nome"],
         prazo_entrega=modalidade["prazo"],
         forma_pagamento=forma_pagamento,
         observacoes=observacoes,

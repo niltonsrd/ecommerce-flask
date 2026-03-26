@@ -4,7 +4,7 @@
 
 <section class="config-page">
     <div class="config-page-header">
-        <span class="section-kicker">Admin</span>
+        <span class="section-kicker">Painel Administrativo</span>
         <h1>Configurações da Loja</h1>
         <p>
             Personalize identidade, contato, localização e tema visual da loja.
@@ -36,6 +36,15 @@
                     <label for="texto_rodape">Texto do rodapé</label>
                     <input type="text" name="texto_rodape" id="texto_rodape" placeholder="Texto do rodapé"
                         value="{{ config[5] if config else '' }}">
+                </div>
+                <div class="admin-form-group">
+                    <label for="mostrar_credito" style="margin-top: 10px;">Crédito do desenvolvedor</label>
+                
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:600; color:var(--text-soft);">
+                        <input type="checkbox" name="mostrar_credito" id="mostrar_credito" value="1" {% if config and config[15]
+                            %}checked{% endif %} style="width:auto; min-width:auto;">
+                        Mostrar crédito do desenvolvedor no rodapé do site
+                    </label>
                 </div>
             </section>
 
@@ -159,6 +168,7 @@
             
                 <div class="theme-preview">
                     <span class="theme-preview-label">Prévia do tema</span>
+                
                     <div class="theme-preview-card" id="themePreviewCard" style="
                             --preview-primary: {{ config[6] if config and config[6] else '#6366f1' }};
                             --preview-secondary: {{ config[7] if config and config[7] else '#a855f7' }};
@@ -167,13 +177,76 @@
                             --preview-text: {{ config[12] if config and config[12] else '#f8fafc' }};
                             --preview-muted: {{ config[13] if config and config[13] else '#94a3b8' }};
                         ">
-                        <div class="theme-preview-badge">Preview</div>
-                        <h3>Nova identidade visual da sua loja</h3>
-                        <p>Botões, destaques, fundo, texto e elementos principais seguirão esse tema.</p>
-            
-                        <div class="theme-preview-actions">
-                            <span class="theme-preview-btn primary">Primário</span>
-                            <span class="theme-preview-btn secondary">Secundário</span>
+                
+                        <div class="theme-preview-browserbar">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                
+                        <div class="theme-preview-header">
+                            <div class="theme-preview-topbar">
+                                <div class="theme-preview-brand">
+                                    <div class="theme-preview-brand-logo">
+                                        {% if logo_url %}
+                                        <img src="{{ url_for('static', filename='uploads/' + logo_url) }}" alt="Logo preview">
+                                        {% else %}
+                                        <span>Logo</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                
+                                <div class="theme-preview-search">
+                                    <div class="theme-preview-search-input">Buscar produtos...</div>
+                                    <div class="theme-preview-search-btn">Buscar</div>
+                                </div>
+                
+                                <div class="theme-preview-header-actions">
+                                    <div class="theme-preview-cart-pill">
+                                        <span>Carrinho</span>
+                                        <span class="theme-preview-cart-badge">0</span>
+                                    </div>
+                
+                                    <div class="theme-preview-account-pill">
+                                        <div class="theme-preview-account-avatar"></div>
+                                        <div class="theme-preview-account-text">
+                                            <small>Minha conta</small>
+                                            <strong>Admin</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="theme-preview-nav">
+                                <span>Início</span>
+                                <span>Produtos</span>
+                                <span>Favoritos</span>
+                                <span>Meus pedidos</span>
+                                <span>Carrinho</span>
+                                <span>Menor preço</span>
+                            </div>
+                        </div>
+                
+                        <div class="theme-preview-body">
+                            <div class="theme-preview-hero">
+                                <div class="theme-preview-badge">Preview</div>
+                                <h3>Nova identidade visual da sua loja</h3>
+                                <p>Seu header, navegação, botões e destaques principais seguirão este tema.</p>
+                
+                                <div class="theme-preview-body-actions">
+                                    <span class="theme-preview-primary-action">Comprar agora</span>
+                                    <span class="theme-preview-secondary-action">Ver novidades</span>
+                                </div>
+                            </div>
+                
+                            <div class="theme-preview-product-card">
+                                <div class="theme-preview-product-image"></div>
+                                <div class="theme-preview-product-content">
+                                    <strong>Card de produto</strong>
+                                    <span>Texto, borda e destaque</span>
+                                    <div class="theme-preview-product-price">R$ 129,90</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -146,3 +146,77 @@ def buscar_itens_pedido(pedido_id, usuario_id):
     conn.close()
 
     return itens
+
+
+def buscar_pedido_admin_por_id(pedido_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+    SELECT
+        p.id,
+        p.usuario_id,
+        u.nome AS cliente_nome,
+        u.email AS cliente_email,
+        u.telefone AS cliente_telefone,
+        p.status,
+        p.valor_total,
+        p.subtotal,
+        p.desconto,
+        p.valor_frete,
+        p.forma_pagamento,
+        p.modalidade_entrega,
+        p.prazo_entrega,
+        p.observacoes,
+        COALESCE(p.criado_em, p.data_pedido) AS data_pedido,
+        e.cep,
+        COALESCE(e.logradouro, e.rua) AS rua,
+        e.numero,
+        e.complemento,
+        e.bairro,
+        e.cidade,
+        e.estado,
+        c.codigo AS cupom_codigo
+    FROM pedidos p
+    JOIN usuarios u ON u.id = p.usuario_id
+    LEFT JOIN enderecos e ON e.id = p.endereco_id
+    LEFT JOIN cupons c ON c.id = p.cupom_id
+    WHERE p.id = %s
+    LIMIT 1
+    """
+
+    cursor.execute(query, (pedido_id,))
+    pedido = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return pedido
+
+
+def buscar_itens_detalhados_admin_pedido(pedido_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+    SELECT
+        pi.id,
+        pi.produto_id,
+        pr.nome AS produto_nome,
+        pi.quantidade,
+        pi.preco,
+        t.nome AS tamanho_nome
+    FROM pedido_itens pi
+    JOIN produtos pr ON pr.id = pi.produto_id
+    LEFT JOIN tamanhos t ON t.id = pi.tamanho_id
+    WHERE pi.pedido_id = %s
+    ORDER BY pi.id ASC
+    """
+
+    cursor.execute(query, (pedido_id,))
+    itens = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return itens

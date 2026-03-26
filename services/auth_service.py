@@ -27,11 +27,17 @@ def autenticar_usuario(email, senha):
     return None
 
 
-def atualizar_usuario_service(usuario_id, nome):
+def atualizar_usuario_service(usuario_id, nome, telefone, cpf, data_nascimento):
     if not nome or len(nome.strip()) < 3:
         raise ValueError("Informe um nome válido com pelo menos 3 caracteres.")
 
-    atualizar_usuario(usuario_id, nome.strip())
+    atualizar_usuario(
+        usuario_id,
+        nome.strip(),
+        telefone,
+        cpf,
+        data_nascimento
+    )
 
 
 def atualizar_foto_usuario_service(usuario_id, foto):

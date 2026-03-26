@@ -3,6 +3,7 @@ from services.pedido_service import (
     mudar_status,
     meus_pedidos,
     detalhe_pedido,
+    detalhe_pedido_admin,
 )
 
 
@@ -20,3 +21,7 @@ def listar_meus_pedidos(usuario_id):
 
 def ver_detalhe_pedido(pedido_id, usuario_id):
     return detalhe_pedido(pedido_id, usuario_id)
+
+
+def ver_detalhe_pedido_admin(pedido_id):
+    return detalhe_pedido_admin(pedido_id)

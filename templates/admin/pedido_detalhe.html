@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido #{{ pedido.id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/pedido-detalhe.css') }}">
+</head>
+
+<body class="admin-body">
+
+    <div class="pedido-page">
+
+        <section class="pedido-topbar">
+            <div class="pedido-title-wrap">
+                <h1>Pedido #{{ pedido.id }}</h1>
+                <p>
+                    Visualize os detalhes completos do pedido, confira os itens comprados,
+                    acompanhe dados do cliente e acesse ações rápidas de atendimento.
+                </p>
+            </div>
+
+            <div class="pedido-top-actions">
+                <a href="/admin/" class="pedido-btn">Voltar</a>
+                <a href="/admin/pedidos/{{ pedido.id }}/comprovante"
+                    class="pedido-btn pedido-btn-primary">Comprovante</a>
+
+                {% if pedido.cliente_email %}
+                <a href="mailto:{{ pedido.cliente_email }}" class="pedido-btn">Email</a>
+                {% endif %}
+
+                {% if pedido.cliente_telefone %}
+                <a href="https://wa.me/55{{ pedido.cliente_telefone|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}"
+                    target="_blank" class="pedido-btn pedido-btn-success">
+                    WhatsApp
+                </a>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="pedido-summary-grid">
+            <article class="pedido-summary-card">
+                <span>Total do Pedido</span>
+                <strong>R$ {{ "%.2f"|format(pedido.valor_total or 0) }}</strong>
+                <small>Valor final pago pelo cliente</small>
+            </article>
+
+            <article class="pedido-summary-card">
+                <span>Forma de Pagamento</span>
+                <strong style="font-size: 18px;">{{ pedido.forma_pagamento or 'Não informado' }}</strong>
+                <small>Método escolhido no checkout</small>
+            </article>
+
+            <article class="pedido-summary-card">
+                <span>Status</span>
+                <strong style="font-size: 18px;">
+                    <span
+                        class="pedido-status-chip status-{{ (pedido.status or 'pendente')|lower|replace(' ', '-')|replace('ã', 'a') }}">
+                        {{ pedido.status or 'PENDENTE' }}
+                    </span>
+                </strong>
+                <small>Situação atual do pedido</small>
+            </article>
+
+            <article class="pedido-summary-card">
+                <span>Cupom</span>
+                <strong style="font-size: 18px;">{{ pedido.cupom_codigo or 'Não usado' }}</strong>
+                <small>Desconto aplicado no pedido</small>
+            </article>
+        </section>
+
+        <section class="pedido-layout">
+
+            <div class="pedido-stack">
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Cliente</h2>
+                            <p>Informações principais para contato e atendimento.</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-cliente-card">
+                        <div>
+                            <strong>{{ pedido.cliente_nome }}</strong>
+
+                            {% if pedido.cliente_email %}
+                            <small>{{ pedido.cliente_email }}</small>
+                            {% endif %}
+
+                            {% if pedido.cliente_telefone %}
+                            <small>{{ pedido.cliente_telefone }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="pedido-cliente-actions">
+                            {% if pedido.cliente_email %}
+                            <a href="mailto:{{ pedido.cliente_email }}" class="mini-btn">Enviar email</a>
+                            {% endif %}
+
+                            {% if pedido.cliente_telefone %}
+                            <a href="https://wa.me/55{{ pedido.cliente_telefone|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}"
+                                target="_blank" class="mini-btn whatsapp-btn">
+                                WhatsApp
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Itens do Pedido</h2>
+                            <p>Resumo dos produtos comprados.</p>
+                        </div>
+                    </div>
+
+                    {% if pedido.itens %}
+                    <div class="table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Tamanho</th>
+                                    <th>Quantidade</th>
+                                    <th>Preço</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pedido.itens %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.produto_nome }}</strong>
+                                    </td>
+                                    <td>{{ item.tamanho_nome or '-' }}</td>
+                                    <td>{{ item.quantidade }}</td>
+                                    <td>R$ {{ "%.2f"|format(item.preco or 0) }}</td>
+                                    <td>
+                                        <strong>R$ {{ "%.2f"|format((item.preco or 0) * (item.quantidade or 0))
+                                            }}</strong>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="pedido-empty">Nenhum item encontrado para este pedido.</p>
+                    {% endif %}
+                </article>
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Observações</h2>
+                            <p>Informações adicionais preenchidas no pedido.</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-observacao">
+                        {{ pedido.observacoes or 'Nenhuma observação informada pelo cliente.' }}
+                    </div>
+                </article>
+            </div>
+
+            <div class="pedido-stack">
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Resumo Financeiro</h2>
+                            <p>Composição total do pedido.</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-totais">
+                        <div class="pedido-total-row">
+                            <span>Subtotal</span>
+                            <strong>R$ {{ "%.2f"|format(pedido.subtotal or 0) }}</strong>
+                        </div>
+
+                        <div class="pedido-total-row">
+                            <span>Desconto</span>
+                            <strong>R$ {{ "%.2f"|format(pedido.desconto or 0) }}</strong>
+                        </div>
+
+                        <div class="pedido-total-row">
+                            <span>Frete</span>
+                            <strong>R$ {{ "%.2f"|format(pedido.valor_frete or 0) }}</strong>
+                        </div>
+
+                        <div class="pedido-total-row total-geral">
+                            <span>Total Geral</span>
+                            <strong>R$ {{ "%.2f"|format(pedido.valor_total or 0) }}</strong>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Entrega</h2>
+                            <p>Endereço e modalidade escolhida.</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-info-grid">
+                        <div class="pedido-info-box">
+                            <span>Modalidade</span>
+                            <p>{{ pedido.modalidade_entrega or 'Não informado' }}</p>
+                        </div>
+
+                        <div class="pedido-info-box">
+                            <span>Prazo</span>
+                            <p>{{ pedido.prazo_entrega or 'Não informado' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-info-box" style="margin-top: 12px;">
+                        <span>Endereço</span>
+                        <div class="pedido-endereco">
+                            {% if pedido.rua or pedido.numero or pedido.cidade %}
+                            <strong>{{ pedido.rua or '' }}</strong>{% if pedido.numero %}, {{ pedido.numero }}{% endif
+                            %}
+                            {% if pedido.complemento %}<br>{{ pedido.complemento }}{% endif %}
+                            {% if pedido.bairro %}<br>{{ pedido.bairro }}{% endif %}
+                            {% if pedido.cidade or pedido.estado %}<br>{{ pedido.cidade or '' }}{% if pedido.estado
+                            %}/{{ pedido.estado }}{% endif %}{% endif %}
+                            {% if pedido.cep %}<br>CEP {{ pedido.cep }}{% endif %}
+                            {% else %}
+                            Endereço não informado.
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Dados do Pedido</h2>
+                            <p>Informações gerais para conferência.</p>
+                        </div>
+                    </div>
+
+                    <div class="pedido-info-grid">
+                        <div class="pedido-info-box">
+                            <span>Número do pedido</span>
+                            <strong>#{{ pedido.id }}</strong>
+                        </div>
+
+                        <div class="pedido-info-box">
+                            <span>Cliente ID</span>
+                            <strong>{{ pedido.usuario_id }}</strong>
+                        </div>
+
+                        <div class="pedido-info-box">
+                            <span>Status atual</span>
+                            <strong>{{ pedido.status or 'PENDENTE' }}</strong>
+                        </div>
+
+                        <div class="pedido-info-box">
+                            <span>Pagamento</span>
+                            <strong>{{ pedido.forma_pagamento or 'Não informado' }}</strong>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</body>
+
+</html>

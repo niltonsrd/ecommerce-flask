@@ -16,8 +16,8 @@ def login_usuario(email, senha):
     return usuario
 
 
-def atualizar_dados_usuario(usuario_id, nome):
-    atualizar_usuario_service(usuario_id, nome)
+def atualizar_dados_usuario(usuario_id, nome, telefone, cpf, data_nascimento):
+    atualizar_usuario_service(usuario_id, nome, telefone, cpf, data_nascimento)
 
 
 def atualizar_avatar_usuario(usuario_id, foto):
@@ -26,4 +26,3 @@ def atualizar_avatar_usuario(usuario_id, foto):
 
 def obter_usuario_por_id(usuario_id):
     return obter_usuario_por_id_service(usuario_id)
-

@@ -215,6 +215,7 @@ def criar_pedido(
     valor_frete,
     valor_total,
     modalidade_entrega_id,
+    modalidade_entrega,
     prazo_entrega,
     forma_pagamento,
     observacoes,
@@ -223,23 +224,24 @@ def criar_pedido(
     cursor = conn.cursor()
 
     query = """
-        INSERT INTO pedidos (
-            usuario_id,
-            endereco_id,
-            cupom_id,
-            subtotal,
-            desconto,
-            valor_frete,
-            valor_total,
-            modalidade_entrega_id,
-            prazo_entrega,
-            forma_pagamento,
-            observacoes,
-            status
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'AGUARDANDO_PAGAMENTO')
-        RETURNING id
-    """
+    INSERT INTO pedidos (
+        usuario_id,
+        endereco_id,
+        cupom_id,
+        subtotal,
+        desconto,
+        valor_frete,
+        valor_total,
+        modalidade_entrega_id,
+        modalidade_entrega,
+        prazo_entrega,
+        forma_pagamento,
+        observacoes,
+        status
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'AGUARDANDO_PAGAMENTO')
+    RETURNING id
+"""
 
     cursor.execute(
         query,
@@ -252,6 +254,7 @@ def criar_pedido(
             valor_frete,
             valor_total,
             modalidade_entrega_id,
+            modalidade_entrega,
             prazo_entrega,
             forma_pagamento,
             observacoes,
@@ -300,9 +303,21 @@ def buscar_pedido_por_id(pedido_id, usuario_id):
 
     query = """
         SELECT
-            p.id, p.usuario_id, p.endereco_id, p.cupom_id, p.subtotal, p.desconto,
-            p.valor_frete, p.valor_total, p.modalidade_entrega_id, p.prazo_entrega,
-            p.forma_pagamento, p.observacoes, p.status, p.criado_em
+            p.id,
+            p.usuario_id,
+            p.endereco_id,
+            p.cupom_id,
+            p.subtotal,
+            p.desconto,
+            p.valor_frete,
+            p.valor_total,
+            p.modalidade_entrega_id,
+            p.modalidade_entrega,
+            p.prazo_entrega,
+            p.forma_pagamento,
+            p.observacoes,
+            p.status,
+            p.criado_em
         FROM pedidos p
         WHERE p.id = %s AND p.usuario_id = %s
         LIMIT 1
@@ -326,9 +341,10 @@ def buscar_pedido_por_id(pedido_id, usuario_id):
         "valor_frete": float(row[6]),
         "valor_total": float(row[7]),
         "modalidade_entrega_id": row[8],
-        "prazo_entrega": row[9],
-        "forma_pagamento": row[10],
-        "observacoes": row[11],
-        "status": row[12],
-        "criado_em": row[13],
+        "modalidade_entrega": row[9],
+        "prazo_entrega": row[10],
+        "forma_pagamento": row[11],
+        "observacoes": row[12],
+        "status": row[13],
+        "criado_em": row[14],
     }

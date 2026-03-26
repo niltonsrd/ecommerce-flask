@@ -14,6 +14,9 @@ def _normalizar_usuario(row, colunas):
         dados.get("senha"),
         dados.get("tipo", "cliente"),
         dados.get("foto"),
+        dados.get("telefone"),
+        dados.get("cpf"),
+        dados.get("data_nascimento"),
     )
 
 
@@ -50,19 +53,23 @@ def buscar_usuario_por_email(email):
     return _normalizar_usuario(usuario, colunas)
 
 
-def atualizar_usuario(usuario_id, nome):
+def atualizar_usuario(usuario_id, nome, telefone, cpf, data_nascimento):
     conn = get_connection()
     cursor = conn.cursor()
 
-    query = """
-    UPDATE usuarios
-    SET nome = %s
-    WHERE id = %s
-    """
+    cursor.execute(
+        """
+        UPDATE usuarios
+        SET nome = %s,
+            telefone = %s,
+            cpf = %s,
+            data_nascimento = %s
+        WHERE id = %s
+    """,
+        (nome, telefone or None, cpf or None, data_nascimento or None, usuario_id),
+    )
 
-    cursor.execute(query, (nome, usuario_id))
     conn.commit()
-
     cursor.close()
     conn.close()
 

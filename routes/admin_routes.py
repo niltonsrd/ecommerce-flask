@@ -64,6 +64,7 @@ from repositories.pagamento_repository import buscar_pagamento_por_pedido, atual
 from repositories.pedido_repository import (
     atualizar_status as atualizar_status_pedido_db,
 )
+from controllers.pedido_controller import ver_detalhe_pedido_admin
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -211,6 +212,40 @@ def pedidos_admin():
     return render_template("admin/pedidos.html", pedidos=lista, buscar_pagamento_por_pedido=buscar_pagamento_por_pedido)
 
 
+@admin_bp.route("/pedidos/<int:pedido_id>")
+def detalhe_pedido_admin_page(pedido_id):
+
+    if not usuario_logado():
+        return redirect("/login")
+
+    if not admin_logado():
+        return redirect("/produtos")
+
+    pedido = ver_detalhe_pedido_admin(pedido_id)
+
+    if not pedido:
+        return "Pedido não encontrado"
+
+    return render_template("admin/pedido_detalhe.html", pedido=pedido)
+
+
+@admin_bp.route("/pedidos/<int:pedido_id>/comprovante")
+def comprovante_pedido_admin_page(pedido_id):
+
+    if not usuario_logado():
+        return redirect("/login")
+
+    if not admin_logado():
+        return redirect("/produtos")
+
+    pedido = ver_detalhe_pedido_admin(pedido_id)
+
+    if not pedido:
+        return "Pedido não encontrado"
+
+    return render_template("admin/pedido_comprovante.html", pedido=pedido)
+
+
 @admin_bp.route("/pedidos/status/<int:id>/<status>")
 def atualizar_status_pedido(id, status):
 
@@ -323,6 +358,7 @@ def configuracoes_admin():
         email_contato = request.form["email_contato"].strip()
         whatsapp = request.form["whatsapp"].strip()
         texto_rodape = request.form["texto_rodape"].strip()
+        mostrar_credito = True if request.form.get("mostrar_credito") else False
         cor_primaria = request.form["cor_primaria"]
         cor_secundaria = request.form["cor_secundaria"]
         cidade_loja = request.form["cidade_loja"].strip()
@@ -357,6 +393,7 @@ def configuracoes_admin():
             cor_texto,
             cor_texto_secundario,
             logo_url,
+            mostrar_credito,
         )
 
         return redirect("/admin/configuracoes")

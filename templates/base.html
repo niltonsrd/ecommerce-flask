@@ -22,18 +22,17 @@
     </style>
 
     {% block extra_css %}{% endblock %}
-
 </head>
 
 <body>
     <div class="fashion-bg">
-        <div class="wave wave-1"></div>
-        <div class="wave wave-2"></div>
-        <div class="wave wave-3"></div>
+        <!-- <div class="wave wave-1"></div> 
+        <div class="wave wave-2"></div> 
+        <div class="wave wave-3"></div>  -->
 
-        <div class="glow glow-1"></div>
+        <!-- <div class="glow glow-1"></div>
         <div class="glow glow-2"></div>
-        <div class="glow glow-3"></div>
+        <div class="glow glow-3"></div> -->
 
         <div class="stars stars-1"></div>
         <div class="stars stars-2"></div>
@@ -45,7 +44,6 @@
 
     <header class="site-header">
         <div class="topbar">
-    
             <div class="brand-area">
                 <a href="/" class="brand-logo">
                     {% if logo_url %}
@@ -55,26 +53,25 @@
                     {% endif %}
                 </a>
             </div>
-    
+
             <form action="/produtos" method="get" class="header-search">
                 <input type="text" name="q" placeholder="Buscar produtos..." value="{{ request.args.get('q', '') }}">
                 <button type="submit">Buscar</button>
             </form>
-    
+
             <div class="header-actions">
-    
                 <div class="mini-cart-wrapper" id="miniCartWrapper">
                     <button type="button" class="header-link cart-link mini-cart-toggle" id="miniCartToggle">
                         <span>Carrinho</span>
                         <span class="count-badge" id="cartCountBadge">{{ total_carrinho }}</span>
                     </button>
-    
+
                     <div class="mini-cart-dropdown" id="miniCartDropdown">
                         <div class="mini-cart-header">
                             <h3>Seu carrinho</h3>
                             <span id="miniCartHeaderCount">{{ total_carrinho }} item(ns)</span>
                         </div>
-    
+
                         {% if mini_carrinho_itens %}
                         <div class="mini-cart-items" id="miniCartItems">
                             {% for item in mini_carrinho_itens %}
@@ -83,7 +80,7 @@
                                     title="Remover item" aria-label="Remover {{ item.nome }} do carrinho">
                                     ×
                                 </button>
-    
+
                                 <div class="mini-cart-item-image">
                                     {% if item.imagem %}
                                     <img src="{{ url_for('static', filename='uploads/' + item.imagem) }}"
@@ -92,7 +89,7 @@
                                     <div class="mini-cart-no-image">Sem imagem</div>
                                     {% endif %}
                                 </div>
-    
+
                                 <div class="mini-cart-item-info">
                                     <h4>{{ item.nome }}</h4>
                                     <p>Tamanho: {{ item.tamanho }}</p>
@@ -102,13 +99,13 @@
                             </div>
                             {% endfor %}
                         </div>
-    
+
                         <div class="mini-cart-footer">
                             <div class="mini-cart-total">
                                 <span>Total</span>
                                 <strong id="miniCartTotalValue">R$ {{ "%.2f"|format(mini_carrinho_total) }}</strong>
                             </div>
-    
+
                             <div class="mini-cart-actions">
                                 <a href="/carrinho" class="mini-cart-btn secondary">Ver carrinho</a>
                                 <a href="/checkout" class="mini-cart-btn primary">Checkout</a>
@@ -122,39 +119,39 @@
                         {% endif %}
                     </div>
                 </div>
-    
+
                 {% if session.get("usuario_id") %}
                 <div class="account-menu-wrapper">
-                    <button type="button" class="account-menu-toggle" id="accountMenuToggle">
-    
+                    <button type="button" class="account-menu-toggle" id="accountMenuToggle" aria-expanded="false"
+                        aria-controls="accountMenuDropdown">
                         <div class="account-avatar">
-                            {% set foto_usuario = session.get("usuario_foto") %}
-                            {% if foto_usuario and foto_usuario is string %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ foto_usuario) }}" alt="Foto de perfil">
+                            {% if session.get("usuario_foto") %}
+                            <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
+                                alt="Foto de perfil">
                             {% else %}
                             <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
                             {% endif %}
                         </div>
-    
+
                         <div class="account-toggle-text">
                             <small>Minha conta</small>
                             <strong>{{ session.get("usuario_nome") }}</strong>
                         </div>
-    
+
                         <span class="account-menu-arrow">▾</span>
                     </button>
-    
+
                     <div class="account-menu-dropdown" id="accountMenuDropdown">
                         <div class="account-menu-profile">
                             <div class="account-avatar account-avatar-large">
-                                {% set foto_usuario = session.get("usuario_foto") %}
-                                {% if foto_usuario and foto_usuario is string %}
-                                <img src="{{ url_for('static', filename='uploads/' ~ foto_usuario) }}" alt="Foto de perfil">
+                                {% if session.get("usuario_foto") %}
+                                <img src="{{ url_for('static', filename='uploads/' + session.get('usuario_foto')) }}"
+                                    alt="Foto de perfil">
                                 {% else %}
                                 <span>{{ session.get("usuario_nome", "U")[0] | upper }}</span>
                                 {% endif %}
                             </div>
-                    
+
                             <div class="account-menu-profile-info">
                                 <h4>{{ session.get("usuario_nome") }}</h4>
                                 <p>
@@ -166,56 +163,58 @@
                                 </p>
                             </div>
                         </div>
-                    
-                        <div class="account-menu-section">
-                            <span class="account-menu-section-title">Minha conta</span>
-                    
-                            <a href="/minha-conta" class="account-menu-link">
-                                <span class="account-menu-icon">👤</span>
-                                <span>Visão geral</span>
-                            </a>
-                    
-                            <a href="/meus-pedidos" class="account-menu-link">
-                                <span class="account-menu-icon">📦</span>
-                                <span>Meus pedidos</span>
-                            </a>
-                    
-                            <a href="/favoritos" class="account-menu-link">
-                                <span class="account-menu-icon">❤</span>
-                                <span>Produtos favoritos</span>
-                            </a>
-                    
-                            <a href="/carrinho" class="account-menu-link">
-                                <span class="account-menu-icon">🛒</span>
-                                <span>Meu carrinho</span>
-                            </a>
+
+                        <div class="account-menu-scroll">
+                            <div class="account-menu-section">
+                                <span class="account-menu-section-title">Minha conta</span>
+
+                                <a href="/minha-conta" class="account-menu-link">
+                                    <span class="account-menu-icon">👤</span>
+                                    <span>Visão geral</span>
+                                </a>
+
+                                <a href="/meus-pedidos" class="account-menu-link">
+                                    <span class="account-menu-icon">📦</span>
+                                    <span>Meus pedidos</span>
+                                </a>
+
+                                <a href="/favoritos" class="account-menu-link">
+                                    <span class="account-menu-icon">❤</span>
+                                    <span>Produtos favoritos</span>
+                                </a>
+
+                                <a href="/carrinho" class="account-menu-link">
+                                    <span class="account-menu-icon">🛒</span>
+                                    <span>Meu carrinho</span>
+                                </a>
+                            </div>
+
+                            <div class="account-menu-section">
+                                <span class="account-menu-section-title">Perfil</span>
+
+                                <a href="/configuracoes-conta" class="account-menu-link">
+                                    <span class="account-menu-icon">⚙</span>
+                                    <span>Configurações da conta</span>
+                                </a>
+
+                                <a href="/enderecos" class="account-menu-link">
+                                    <span class="account-menu-icon">📍</span>
+                                    <span>Endereços</span>
+                                </a>
+                            </div>
+
+                            {% if session.get("usuario_tipo") == "admin" %}
+                            <div class="account-menu-section">
+                                <span class="account-menu-section-title">Administração</span>
+
+                                <a href="/admin" class="account-menu-link">
+                                    <span class="account-menu-icon">🛠</span>
+                                    <span>Painel admin</span>
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
-                    
-                        <div class="account-menu-section">
-                            <span class="account-menu-section-title">Perfil</span>
-                    
-                            <a href="/configuracoes-conta" class="account-menu-link">
-                                <span class="account-menu-icon">⚙</span>
-                                <span>Configurações da conta</span>
-                            </a>
-                    
-                            <a href="/enderecos" class="account-menu-link">
-                                <span class="account-menu-icon">📍</span>
-                                <span>Endereços</span>
-                            </a>
-                        </div>
-                    
-                        {% if session.get("usuario_tipo") == "admin" %}
-                        <div class="account-menu-section">
-                            <span class="account-menu-section-title">Administração</span>
-                    
-                            <a href="/admin" class="account-menu-link">
-                                <span class="account-menu-icon">🛠</span>
-                                <span>Painel admin</span>
-                            </a>
-                        </div>
-                        {% endif %}
-                    
+
                         <div class="account-menu-footer">
                             <a href="/logout" class="account-menu-link account-menu-logout">
                                 <span class="account-menu-icon">↩</span>
@@ -223,67 +222,102 @@
                             </a>
                         </div>
                     </div>
-                    </div>
-                    {% else %}
-                    <a href="/login" class="header-link btn-login">Login</a>
-                    <a href="/cadastro" class="header-link btn-cadastro">Cadastro</a>
-                    {% endif %}
-                    </div>
-                    </div>
-    
+                </div>
+                {% else %}
+                <a href="/login" class="header-link btn-login">Login</a>
+                <a href="/cadastro" class="header-link btn-cadastro">Cadastro</a>
+                {% endif %}
+            </div>
+        </div>
+
         <nav class="main-nav">
             <a href="/" {% if request.path=='/' %}class="active" {% endif %}>Início</a>
-    
+
             <a href="/produtos" {% if request.path.startswith('/produtos') or request.path.startswith('/produto/')
                 %}class="active" {% endif %}>
                 Produtos
             </a>
-    
+
             {% if session.get("usuario_id") %}
             <a href="/favoritos" {% if request.path.startswith('/favoritos') %}class="active" {% endif %}>
                 Favoritos
             </a>
-    
+
             <a href="/meus-pedidos" {% if request.path.startswith('/meus-pedidos') or
                 request.path.startswith('/meu-pedido/') %}class="active" {% endif %}>
                 Meus pedidos
             </a>
-    
+
             <a href="/carrinho" {% if request.path.startswith('/carrinho') %}class="active" {% endif %}>
                 Carrinho
             </a>
             {% endif %}
-    
+
             <a href="/produtos?ordem=menor_preco">Menor preço</a>
             <a href="/produtos?ordem=maior_preco">Maior preço</a>
             <a href="/produtos">Explorar vitrine</a>
         </nav>
     </header>
-    
+
     <main class="site-main">
         {% block content %}
         {% endblock %}
     </main>
-    
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-brand">
-                {{ config_loja[1] if config_loja else 'Loja Online' }}
+
+<footer class="site-footer">
+    <div class="footer-inner footer-premium">
+
+        <div class="footer-premium-top">
+            <div class="footer-premium-brand">
+
+                <div class="footer-brand-badge">Loja oficial</div>
+
+                <h2 class="footer-brand-title">
+                    {{ config_loja[1] if config_loja else 'Loja Online' }}
+                </h2>
+
+                {% if config_loja and config_loja[2] %}
+                <p class="footer-brand-slogan">{{ config_loja[2] }}</p>
+                {% else %}
+                <p class="footer-brand-slogan">
+                    Uma experiência premium para seus clientes.
+                </p>
+                {% endif %}
+
             </div>
-    
-            {% if config_loja and config_loja[2] %}
-            <p class="footer-text">{{ config_loja[2] }}</p>
-            {% endif %}
-    
-            <p class="footer-copy">
-                {{ config_loja[5] if config_loja else 'Loja Online © 2026' }}
-            </p>
-            <a href="https://niltonsrd.github.io/portfolio/">Site Desenvolvido Por NTDev - CLIQUE AQUI</a>
+
+            <div class="footer-premium-highlight">
+                <div class="footer-highlight-card">
+                    <span class="footer-highlight-label">Experiência</span>
+                    <strong>Compra segura</strong>
+                    <p>
+                        Navegação moderna, pagamentos protegidos e uma experiência fluida do início ao fim.
+                    </p>
+                </div>
+            </div>
         </div>
-        
-       
-    </footer>
-    
+
+        <div class="footer-premium-divider"></div>
+
+        <div class="footer-premium-bottom">
+
+            <div class="footer-copy-wrap">
+                <p class="footer-copy">
+                    {{ config_loja[5] if config_loja else 'Loja Online © 2026' }}
+                </p>
+            </div>
+
+            {% if config_loja and config_loja[15] %}
+            <div class="footer-dev-credit">
+                <a href="https://niltonsrd.github.io/portfolio/">Plataforma Desenvolvida por NTDev - Clique Aqui</a>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</footer>
+
     <script src="{{ url_for('static', filename='js/mini_cart.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -295,8 +329,9 @@
                     e.preventDefault();
                     e.stopPropagation();
 
-                    accountMenuToggle.classList.toggle("active");
-                    accountMenuDropdown.classList.toggle("active");
+                    const isActive = accountMenuDropdown.classList.toggle("active");
+                    accountMenuToggle.classList.toggle("active", isActive);
+                    accountMenuToggle.setAttribute("aria-expanded", isActive ? "true" : "false");
                 });
 
                 accountMenuDropdown.addEventListener("click", function (e) {
@@ -310,11 +345,20 @@
                     ) {
                         accountMenuToggle.classList.remove("active");
                         accountMenuDropdown.classList.remove("active");
+                        accountMenuToggle.setAttribute("aria-expanded", "false");
+                    }
+                });
+
+                document.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") {
+                        accountMenuToggle.classList.remove("active");
+                        accountMenuDropdown.classList.remove("active");
+                        accountMenuToggle.setAttribute("aria-expanded", "false");
                     }
                 });
             }
         });
     </script>
-    </body>
-    
-    </html>
+</body>
+
+</html>

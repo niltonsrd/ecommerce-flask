@@ -61,6 +61,9 @@ def login():
             session["usuario_nome"] = usuario[1]
             session["usuario_email"] = usuario[2]
             session["usuario_tipo"] = usuario[4] or "cliente"
+            session["usuario_telefone"] = usuario[6] or ""
+            session["usuario_cpf"] = usuario[7] or ""
+            session["usuario_data_nascimento"] = usuario[8] or ""
 
             foto_usuario = None
             if len(usuario) > 5 and isinstance(usuario[5], str):
@@ -103,10 +106,13 @@ def configuracoes_conta():
 
     if request.method == "POST":
         nome = request.form.get("nome", "").strip()
+        telefone = request.form.get("telefone", "").strip()
+        cpf = request.form.get("cpf", "").strip()
+        data_nascimento = request.form.get("data_nascimento")
         foto = request.files.get("foto")
 
         try:
-            atualizar_dados_usuario(usuario_id, nome)
+            atualizar_dados_usuario(usuario_id, nome, telefone, cpf, data_nascimento)
             session["usuario_nome"] = nome
 
             if foto and foto.filename:

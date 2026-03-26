@@ -21,7 +21,8 @@ def obter_configuracoes():
         cor_fundo_secundario,
         cor_texto,
         cor_texto_secundario,
-        logo_url
+        logo_url,
+        mostrar_credito
     FROM configuracoes_loja
     ORDER BY id ASC
     LIMIT 1
@@ -51,6 +52,7 @@ def atualizar_configuracoes(
     cor_texto,
     cor_texto_secundario,
     logo_url,
+    mostrar_credito,
 ):
     conn = get_connection()
     cursor = conn.cursor()
@@ -70,7 +72,8 @@ def atualizar_configuracoes(
         cor_fundo_secundario = %s,
         cor_texto = %s,
         cor_texto_secundario = %s,
-        logo_url = %s
+        logo_url = %s,
+        mostrar_credito = %s
     WHERE id = 1
     """
 
@@ -91,6 +94,7 @@ def atualizar_configuracoes(
             cor_texto,
             cor_texto_secundario,
             logo_url,
+            mostrar_credito,
         ),
     )
 
