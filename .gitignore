@@ -23,3 +23,10 @@ backup*.dump
 .aider*
 static/uploads/*
 !static/uploads/.gitkeep
+!static/uploads/*.jpg
+!static/uploads/*.jpeg
+!static/uploads/*.png
+!static/uploads/*.webp
+!static/uploads/*.avif
+static/uploads/perfis/*
+static/uploads/comprovantes/*
