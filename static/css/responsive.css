@@ -1,0 +1,424 @@
+
+/* =========================================================
+   RESPONSIVE GLOBAL - LOJA
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.site-main,
+.site-footer,
+.site-header {
+  width: 100%;
+  overflow-x: clip;
+}
+
+.site-main * {
+  min-width: 0;
+}
+
+.site-main section,
+.site-main .container,
+.site-main .produtos-layout,
+.site-main .produto-page,
+.site-main .checkout-page,
+.site-main .carrinho-page,
+.site-main .favoritos-page,
+.site-main .minha-conta-page,
+.site-main .meus-pedidos-page {
+  width: 100%;
+}
+
+/* HEADER / BASE */
+
+@media (max-width: 1100px) {
+  :root {
+    --site-header-offset: 190px;
+  }
+
+  .site-header {
+    top: 8px;
+    width: calc(100% - 18px);
+  }
+
+  .site-main,
+  .footer-inner {
+    width: min(var(--container), calc(100% - 32px));
+  }
+
+  .topbar {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .brand-area {
+    justify-content: center;
+  }
+
+  .brand-logo {
+    justify-content: center;
+  }
+
+  .brand-logo img {
+    height: 200px !important;
+  }
+
+  .header-search {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .mini-cart-wrapper,
+  .account-menu-wrapper,
+  .header-actions .header-link,
+  .header-actions a {
+    width: 100%;
+  }
+
+  .cart-link,
+  .account-menu-toggle,
+  .btn-login,
+  .btn-cadastro {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .main-nav {
+    gap: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 12px 14px 14px;
+  }
+
+  .main-nav a {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --site-header-offset: 220px;
+  }
+
+  .site-main,
+  .footer-inner {
+    width: calc(100% - 24px);
+  }
+
+  .site-header {
+    width: calc(100% - 14px);
+  }
+
+  .topbar {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .brand-logo img {
+    max-height: 58px;
+  }
+
+  .header-search {
+    grid-template-columns: 1fr;
+  }
+
+  .header-search input,
+  .header-search button,
+  .cart-link,
+  .account-menu-toggle,
+  .btn-login,
+  .btn-cadastro {
+    width: 100%;
+    min-height: 50px;
+  }
+
+  .header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .account-menu-dropdown,
+  .mini-cart-dropdown {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .mini-cart-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .site-main {
+    padding-top: var(--site-header-offset) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --site-header-offset: 236px;
+  }
+
+  .site-main,
+  .footer-inner {
+    width: calc(100% - 20px);
+  }
+
+  .site-header {
+    width: calc(100% - 10px);
+  }
+
+  .brand-logo img {
+    max-height: 52px;
+  }
+
+  .main-nav a {
+    font-size: .95rem;
+  }
+}
+
+/* GRIDS GERAIS DA LOJA */
+
+@media (max-width: 1100px) {
+  .produtos-layout,
+  .checkout-layout,
+  .minha-conta-layout,
+  .favoritos-layout,
+  .meus-pedidos-layout,
+  .produto-top {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .produtos-grid,
+  .produtos-grid-page,
+  .favoritos-grid,
+  .pedidos-grid,
+  .enderecos-grid,
+  .produto-extra-grid,
+  .avaliacoes-lista,
+  .minha-conta-grid,
+  .resumo-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* FORMULÁRIOS GERAIS */
+
+@media (max-width: 768px) {
+  .filtros-form,
+  .checkout-form,
+  .avaliacao-form,
+  .config-form,
+  .endereco-form {
+    gap: 14px;
+  }
+
+  .filtro-precos,
+  .checkout-form-row,
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+  }
+}
+
+/* PRODUTOS / FILTROS */
+
+@media (max-width: 1100px) {
+  .produtos-layout {
+    gap: 22px;
+  }
+
+  .filtros-premium {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .produtos-page-section,
+  .produtos-content,
+  .produtos-hero {
+    padding-inline: 12px;
+  }
+
+  .produtos-topbar {
+    display: grid;
+    gap: 8px;
+  }
+
+  .produto-card-page {
+    border-radius: 22px;
+  }
+
+  .produtos-grid-page .produto-main-image {
+    height: 260px !important;
+    min-height: 260px !important;
+    max-height: 260px !important;
+  }
+}
+
+/* CARRINHO / CHECKOUT */
+
+@media (max-width: 768px) {
+  .carrinho-page,
+  .checkout-page {
+    padding-inline: 12px;
+  }
+
+  .carrinho-item,
+  .checkout-card,
+  .resumo-card {
+    border-radius: 20px;
+  }
+
+  .carrinho-item {
+    grid-template-columns: 1fr !important;
+  }
+
+  .checkout-actions,
+  .carrinho-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .checkout-actions .btn-primary,
+  .checkout-actions .btn-secondary,
+  .carrinho-actions .btn-primary,
+  .carrinho-actions .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* CONTA / PEDIDOS / FAVORITOS */
+
+@media (max-width: 768px) {
+  .minha-conta-page,
+  .meus-pedidos-page,
+  .favoritos-page,
+  .enderecos-page,
+  .detalhes-pedido-page {
+    padding-inline: 12px;
+  }
+
+  .pedido-card,
+  .favorito-card,
+  .conta-card,
+  .endereco-card {
+    border-radius: 20px;
+  }
+
+  .pedido-actions,
+  .favorito-actions,
+  .conta-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .pedido-actions a,
+  .favorito-actions a,
+  .conta-actions a,
+  .pedido-actions button,
+  .favorito-actions button,
+  .conta-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-area {
+    justify-content: center !important;
+    min-height: auto !important;
+    padding: 4px 0 2px;
+  }
+
+  .brand-logo {
+    margin: 0 auto !important;
+  }
+
+  .brand-logo img {
+    height: 174px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform: none !important;
+    margin: 0 auto !important;
+  }
+
+  .brand-logo-login img {
+    display: flex !important;
+    align-content: center !important;
+
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo img {
+    height: 164px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand-logo img {
+    height: 158px !important;
+  }
+}
+
+@media (max-width: 768px) {
+    .fashion-bg {
+        background-size: cover;
+        background-position: center top;
+    }
+
+    .fashion-bg::before {
+        background:
+            radial-gradient(circle at top, rgba(255, 255, 255, 0.02), transparent 28%),
+            linear-gradient(180deg, rgba(2, 4, 10, 0.58) 0%, rgba(7, 11, 20, 0.48) 40%, rgba(4, 6, 11, 0.60) 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    .fashion-bg {
+        background-position: center center;
+        transform: scale(1.08);
+        transform-origin: center;
+    }
+
+    .fashion-bg::before {
+        background:
+            linear-gradient(180deg, rgba(2, 4, 10, 0.68) 0%, rgba(7, 11, 20, 0.56) 45%, rgba(4, 6, 11, 0.70) 100%);
+    }
+}

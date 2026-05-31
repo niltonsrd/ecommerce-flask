@@ -28,6 +28,47 @@ function formatarPreco(valor) {
     return Number(valor || 0).toFixed(2).replace(".", ",");
 }
 
+function obterNomeProdutoDoForm(form) {
+    if (!form) return "Produto";
+
+    return (
+        form.dataset.nome ||
+        form.getAttribute("data-nome") ||
+        form.querySelector('input[name="nome"]')?.value ||
+        form.querySelector('[data-product-name]')?.textContent?.trim() ||
+        form.closest(".produto-card")?.querySelector("h3, .produto-nome, .product-title")?.textContent?.trim() ||
+        "Produto"
+    );
+}
+
+function obterTamanhoSelecionadoDoForm(form) {
+    if (!form) return null;
+
+    const campoTamanho = form.querySelector('[name="tamanho"], [name="tamanho_id"], [name="size"]');
+
+    if (!campoTamanho) return null;
+
+    if (campoTamanho.tagName === "SELECT") {
+        const option = campoTamanho.options[campoTamanho.selectedIndex];
+        return option ? option.textContent.trim() : campoTamanho.value || null;
+    }
+
+    if (campoTamanho.type === "radio") {
+        const selecionado = form.querySelector('[name="' + campoTamanho.name + '"]:checked');
+        return selecionado ? (selecionado.dataset.label || selecionado.value) : null;
+    }
+
+    return campoTamanho.value || null;
+}
+
+function dispararEventoCarrinho(nomeEvento, detail = {}) {
+    window.dispatchEvent(
+        new CustomEvent(nomeEvento, {
+            detail
+        })
+    );
+}
+
 function atualizarBadgeCarrinho(totalCarrinho) {
     const badge = document.getElementById("cartCountBadge");
     const headerCount = document.getElementById("miniCartHeaderCount");
@@ -143,9 +184,9 @@ function renderizarMiniCarrinho(itens, total, totalCarrinho) {
 
                 <div class="mini-cart-item-image">
                     ${item.imagem
-                ? `<img src="/static/uploads/${item.imagem}" alt="${item.nome}">`
-                : `<div class="mini-cart-no-image">Sem imagem</div>`
-            }
+                        ? `<img src="/static/uploads/${item.imagem}" alt="${item.nome}">`
+                        : `<div class="mini-cart-no-image">Sem imagem</div>`
+                    }
                 </div>
 
                 <div class="mini-cart-item-info">
@@ -210,6 +251,11 @@ function inicializarEventosMiniCarrinho() {
                 if (miniCartDropdown) {
                     miniCartDropdown.classList.add("active");
                 }
+
+                dispararEventoCarrinho("cart:updated", {
+                    totalCarrinho: data.total_carrinho || 0,
+                    total: data.mini_carrinho_total || 0
+                });
             } catch (error) {
                 console.error("Erro ao remover item:", error);
                 alert("Erro ao remover item do carrinho.");
@@ -227,6 +273,8 @@ function inicializarFormsAdicionarCarrinho() {
 
             const formData = new FormData(form);
             const botao = form.querySelector('button[type="submit"]');
+            const nomeProduto = obterNomeProdutoDoForm(form);
+            const tamanhoSelecionado = obterTamanhoSelecionadoDoForm(form);
 
             if (botao) {
                 botao.disabled = true;
@@ -252,6 +300,7 @@ function inicializarFormsAdicionarCarrinho() {
                     }
 
                     alert(data.message || "Não foi possível adicionar ao carrinho.");
+
                     if (botao) {
                         botao.textContent = botao.dataset.textoOriginal || "Adicionar ao carrinho";
                         botao.disabled = false;
@@ -269,6 +318,13 @@ function inicializarFormsAdicionarCarrinho() {
                 if (miniCartDropdown) {
                     miniCartDropdown.classList.add("active");
                 }
+
+                dispararEventoCarrinho("cart:added", {
+                    nome: nomeProduto,
+                    tamanho: tamanhoSelecionado,
+                    totalCarrinho: data.total_carrinho || 0,
+                    total: data.mini_carrinho_total || 0
+                });
 
                 if (botao) {
                     botao.textContent = "Adicionado!";
@@ -289,6 +345,7 @@ function inicializarFormsAdicionarCarrinho() {
         };
     });
 }
+
 async function atualizarMiniCarrinho() {
     try {
         const response = await fetch("/carrinho/mini");
@@ -302,11 +359,9 @@ async function atualizarMiniCarrinho() {
         const totalValue = document.getElementById("miniCartTotalValue");
         const emptyContainer = document.getElementById("miniCartEmpty");
 
-        // Atualiza contador
         if (badge) badge.textContent = data.total_carrinho;
         if (headerCount) headerCount.textContent = `${data.total_carrinho} item(ns)`;
 
-        // Limpa itens
         if (itemsContainer) itemsContainer.innerHTML = "";
 
         if (data.mini_carrinho.length === 0) {
@@ -324,7 +379,7 @@ async function atualizarMiniCarrinho() {
                     <div>
                         <h4>${item.nome}</h4>
                         <p>Qtd: ${item.quantidade}</p>
-                        <strong>R$ ${item.subtotal.toFixed(2)}</strong>
+                        <strong>R$ ${Number(item.subtotal || 0).toFixed(2).replace(".", ",")}</strong>
                     </div>
                 `;
 
@@ -333,9 +388,13 @@ async function atualizarMiniCarrinho() {
         }
 
         if (totalValue) {
-            totalValue.textContent = `R$ ${data.mini_carrinho_total.toFixed(2)}`;
+            totalValue.textContent = `R$ ${Number(data.mini_carrinho_total || 0).toFixed(2).replace(".", ",")}`;
         }
 
+        dispararEventoCarrinho("cart:updated", {
+            totalCarrinho: data.total_carrinho || 0,
+            total: data.mini_carrinho_total || 0
+        });
     } catch (error) {
         console.error("Erro ao atualizar mini carrinho:", error);
     }

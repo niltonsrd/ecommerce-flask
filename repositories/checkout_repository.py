@@ -24,7 +24,7 @@ def buscar_itens_carrinho(usuario_id):
                 ''
             ) AS imagem_url,
             t.nome AS tamanho_nome,
-            e.quantidade AS estoque_disponivel
+            GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) AS estoque_disponivel
         FROM carrinho c
         INNER JOIN produtos p ON p.id = c.produto_id
         INNER JOIN tamanhos t ON t.id = c.tamanho_id
@@ -348,3 +348,145 @@ def buscar_pedido_por_id(pedido_id, usuario_id):
         "status": row[13],
         "criado_em": row[14],
     }
+
+
+def criar_pedido_completo(usuario_id, itens, dados_pedido, dados_pagamento):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        for item in itens:
+            cursor.execute(
+                """
+                SELECT quantidade, COALESCE(reservado, 0)
+                FROM estoque
+                WHERE produto_id = %s
+                  AND tamanho_id = %s
+                FOR UPDATE
+                """,
+                (item["produto_id"], item["tamanho_id"]),
+            )
+            estoque = cursor.fetchone()
+            if not estoque:
+                raise ValueError(f"Estoque não encontrado para {item['nome']}.")
+
+            disponivel = int(estoque[0] or 0) - int(estoque[1] or 0)
+            if int(item["quantidade"]) > disponivel:
+                raise ValueError(
+                    f"Estoque insuficiente para o produto {item['nome']} no tamanho {item['tamanho_nome']}."
+                )
+
+        cursor.execute(
+            """
+            INSERT INTO pedidos (
+                usuario_id,
+                endereco_id,
+                cupom_id,
+                subtotal,
+                desconto,
+                valor_frete,
+                valor_total,
+                modalidade_entrega_id,
+                modalidade_entrega,
+                prazo_entrega,
+                forma_pagamento,
+                observacoes,
+                status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'AGUARDANDO_PAGAMENTO')
+            RETURNING id
+            """,
+            (
+                usuario_id,
+                dados_pedido["endereco_id"],
+                dados_pedido["cupom_id"],
+                dados_pedido["subtotal"],
+                dados_pedido["desconto"],
+                dados_pedido["valor_frete"],
+                dados_pedido["valor_total"],
+                dados_pedido["modalidade_entrega_id"],
+                dados_pedido["modalidade_entrega"],
+                dados_pedido["prazo_entrega"],
+                dados_pedido["forma_pagamento"],
+                dados_pedido["observacoes"],
+            ),
+        )
+        pedido_id = cursor.fetchone()[0]
+
+        for item in itens:
+            cursor.execute(
+                """
+                INSERT INTO pedido_itens (
+                    pedido_id, produto_id, tamanho_id, quantidade, preco
+                )
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (
+                    pedido_id,
+                    item["produto_id"],
+                    item["tamanho_id"],
+                    item["quantidade"],
+                    item["preco"],
+                ),
+            )
+            cursor.execute(
+                """
+                UPDATE estoque
+                SET reservado = COALESCE(reservado, 0) + %s,
+                    atualizado_em = NOW()
+                WHERE produto_id = %s
+                  AND tamanho_id = %s
+                """,
+                (item["quantidade"], item["produto_id"], item["tamanho_id"]),
+            )
+            cursor.execute(
+                """
+                INSERT INTO estoque_movimentacoes (
+                    produto_id, tamanho_id, tipo, quantidade, pedido_id, observacao
+                )
+                VALUES (%s, %s, 'RESERVA', %s, %s, 'Reserva automática no checkout')
+                """,
+                (
+                    item["produto_id"],
+                    item["tamanho_id"],
+                    item["quantidade"],
+                    pedido_id,
+                ),
+            )
+
+        cursor.execute(
+            """
+            INSERT INTO pagamentos (
+                pedido_id,
+                metodo,
+                valor,
+                status,
+                gateway,
+                transacao_id,
+                detalhes
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                pedido_id,
+                dados_pagamento.get("metodo"),
+                dados_pagamento.get("valor"),
+                dados_pagamento.get("status"),
+                dados_pagamento.get("gateway"),
+                dados_pagamento.get("payment_id"),
+                dados_pagamento.get("instrucao"),
+            ),
+        )
+        pagamento_id = cursor.fetchone()[0]
+
+        cursor.execute("DELETE FROM carrinho WHERE usuario_id = %s", (usuario_id,))
+
+        conn.commit()
+        return pedido_id, pagamento_id
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()

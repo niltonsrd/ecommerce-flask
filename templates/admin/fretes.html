@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+{% block content %}
+<section class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Fretes</h1>
+            <p>Gerencie as regiões de frete e valores por CEP.</p>
+        </div>
+        <div class="admin-toolbar">
+            <a href="/admin/fretes/novo" class="btn-admin">Novo Frete</a>
+        </div>
+    </div>
+
+    {% if fretes %}
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Região</th>
+                    <th>CEP Início</th>
+                    <th>CEP Fim</th>
+                    <th>Valor</th>
+                    <th>Prazo (dias)</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for frete in fretes %}
+                <tr>
+                    <td>{{ frete[0] }}</td>
+                    <td>{{ frete[1] }}</td>
+                    <td>{{ frete[2] }}</td>
+                    <td>{{ frete[3] }}</td>
+                    <td>R$ {{ "%.2f"|format(frete[4]) }}</td>
+                    <td>{{ frete[5] }}</td>
+                    <td>
+                        {% if frete[6] %}
+                        <span class="admin-status active">Ativo</span>
+                        {% else %}
+                        <span class="admin-status inactive">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td class="admin-actions-cell">
+                        <a href="/admin/fretes/editar/{{ frete[0] }}" class="btn-admin-outline">Editar</a>
+                        <a href="/admin/fretes/excluir/{{ frete[0] }}" class="btn-admin-danger" onclick="return confirm('Excluir este frete?')">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="admin-empty">
+        Nenhum frete cadastrado.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

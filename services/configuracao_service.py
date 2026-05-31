@@ -24,6 +24,7 @@ def salvar_configuracoes(
     cor_texto_secundario,
     logo_url,
     mostrar_credito,
+    background_url,
 ):
     atualizar_configuracoes(
         nome_loja,
@@ -41,4 +42,5 @@ def salvar_configuracoes(
         cor_texto_secundario,
         logo_url,
         mostrar_credito,
+        background_url,
     )

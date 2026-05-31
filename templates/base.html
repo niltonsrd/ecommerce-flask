@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config_loja[1] if config_loja else 'Loja Online' }}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    
     <style>
         :root {
             --primary: {{ cor_primaria }};
@@ -18,28 +20,271 @@
             --bg-2: {{ cor_fundo_secundario }};
             --text: {{ cor_texto }};
             --muted: {{ cor_texto_secundario }};
+            --background-url: {% if background_url %}url('{{ url_for("static", filename="uploads/" + background_url) }}'){% else %}none{% endif %};
+        }
+    </style>
+    <style>
+        :root {
+            --header-height: 120px;
+            --mini-cart-overlay-bg: rgba(3, 8, 20, 0.58);
+            --mini-cart-toast-bg: rgba(10, 14, 28, 0.92);
+            --mini-cart-toast-border: rgba(255, 255, 255, 0.12);
+            --mini-cart-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
+        }
+    
+        body {
+            padding-top: var(--header-height);
+        }
+    
+        body.body-cart-open {
+            overflow: hidden;
+            touch-action: none;
+        }
+    
+        .site-header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            width: 100%;
+            z-index: 1000;
+        }
+    
+        .site-main {
+            position: relative;
+            z-index: 1;
+        }
+    
+        #miniCartOverlay {
+            position: fixed;
+            inset: 0;
+            background: var(--mini-cart-overlay-bg);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+            z-index: 998;
+        }
+    
+        #miniCartOverlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+    
+        .mini-cart-wrapper {
+            position: relative;
+            z-index: 1001;
+        }
+    
+        .mini-cart-dropdown {
+            z-index: 1002;
+            transform-origin: top right;
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                visibility 0.25s ease;
+        }
+    
+        .mini-cart-dropdown.mini-cart-enhanced-open {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) scale(1) !important;
+        }
+    
+        #cartFeedbackToast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: min(410px, calc(100vw - 32px));
+            background: var(--mini-cart-toast-bg);
+            border: 1px solid var(--mini-cart-toast-border);
+            border-radius: 24px;
+            box-shadow: var(--mini-cart-shadow);
+            padding: 18px;
+            z-index: 1200;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(24px) scale(0.98);
+            transition:
+                opacity 0.28s ease,
+                transform 0.28s ease,
+                visibility 0.28s ease;
+            overflow: hidden;
+        }
+    
+        #cartFeedbackToast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+    
+        .cart-feedback-glow {
+            position: absolute;
+            inset: auto -50px -50px auto;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(var(--primary-rgb), 0.30) 0%, rgba(var(--secondary-rgb), 0.24) 35%, transparent 72%);
+            pointer-events: none;
+            filter: blur(18px);
+        }
+    
+        .cart-feedback-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+    
+        .cart-feedback-icon {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.24), rgba(var(--secondary-rgb), 0.28));
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+    
+        .cart-feedback-content h4 {
+            margin: 0 0 4px;
+            color: var(--text);
+            font-size: 1.05rem;
+            line-height: 1.2;
+        }
+    
+        .cart-feedback-content p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 0.95rem;
+        }
+    
+        .cart-feedback-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+    
+        .cart-feedback-btn {
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+            min-height: 46px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+        }
+    
+        .cart-feedback-btn:hover {
+            transform: translateY(-1px);
+        }
+    
+        .cart-feedback-btn.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    
+        .cart-feedback-btn.primary {
+            color: #fff;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            box-shadow: 0 16px 35px rgba(var(--secondary-rgb), 0.22);
+        }
+    
+        .count-badge.cart-bounce {
+            animation: cartBadgePop 0.45s ease;
+        }
+    
+        @keyframes cartBadgePop {
+            0% {
+                transform: scale(1);
+            }
+    
+            35% {
+                transform: scale(1.28);
+            }
+    
+            65% {
+                transform: scale(0.92);
+            }
+    
+            100% {
+                transform: scale(1);
+            }
+        }
+    
+        @media (max-width: 768px) {
+            body {
+                padding-top: var(--header-height);
+            }
+    
+            .site-header {
+                position: fixed;
+            }
+    
+            .mini-cart-dropdown {
+                position: fixed !important;
+                top: auto !important;
+                left: 12px !important;
+                right: 12px !important;
+                bottom: 12px !important;
+                width: auto !important;
+                max-width: none !important;
+                max-height: min(78vh, 680px);
+                border-radius: 24px !important;
+                overflow: hidden;
+                transform: translateY(30px) scale(0.98);
+                opacity: 0;
+                visibility: hidden;
+                box-shadow: var(--mini-cart-shadow);
+                z-index: 1100 !important;
+            }
+    
+            .mini-cart-dropdown.mini-cart-enhanced-open {
+                transform: translateY(0) scale(1) !important;
+            }
+    
+            .mini-cart-items {
+                max-height: 42vh;
+                overflow-y: auto;
+            }
+    
+            #cartFeedbackToast {
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                width: auto;
+                border-radius: 20px;
+            }
+    
+            .cart-feedback-actions {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
     {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium-finish.css') }}">
 </head>
 
 <body>
+    <div id="miniCartOverlay" aria-hidden="true"></div>
+
     <div class="fashion-bg">
-        <!-- <div class="wave wave-1"></div> 
-        <div class="wave wave-2"></div> 
-        <div class="wave wave-3"></div>  -->
 
-        <!-- <div class="glow glow-1"></div>
-        <div class="glow glow-2"></div>
-        <div class="glow glow-3"></div> -->
-
-        <div class="stars stars-1"></div>
-        <div class="stars stars-2"></div>
-        <div class="stars stars-3"></div>
-
-        <div class="grid-overlay"></div>
-        <div class="vignette"></div>
     </div>
 
     <header class="site-header">
@@ -54,7 +299,7 @@
                 </a>
             </div>
 
-            <form action="/produtos" method="get" class="header-search">
+            <form  action="/produtos" method="get" class="header-search">
                 <input type="text" name="q" placeholder="Buscar produtos..." value="{{ request.args.get('q', '') }}">
                 <button type="submit">Buscar</button>
             </form>
@@ -108,7 +353,7 @@
 
                             <div class="mini-cart-actions">
                                 <a href="/carrinho" class="mini-cart-btn secondary">Ver carrinho</a>
-                                <a href="/checkout" class="mini-cart-btn primary">Checkout</a>
+                                <a href="/checkout" class="mini-cart-btn primary">Ir Para Pagamento</a>
                             </div>
                         </div>
                         {% else %}
@@ -253,6 +498,12 @@
             </a>
             {% endif %}
 
+            {% if not session.get("usuario_id") %}
+            <a href="/carrinho" {% if request.path.startswith('/carrinho') %}class="active" {% endif %}>
+                Carrinho
+            </a>
+            {% endif %}
+
             <a href="/produtos?ordem=menor_preco">Menor preço</a>
             <a href="/produtos?ordem=maior_preco">Maior preço</a>
             <a href="/produtos">Explorar vitrine</a>
@@ -317,12 +568,157 @@
 
     </div>
 </footer>
+    <div id="cartFeedbackToast" aria-live="polite" aria-atomic="true">
+        <div class="cart-feedback-glow"></div>
+    
+        <div class="cart-feedback-top">
+            <div class="cart-feedback-icon">🛒</div>
+    
+            <div class="cart-feedback-content">
+                <h4 id="cartFeedbackTitle">Produto adicionado ao carrinho</h4>
+                <p id="cartFeedbackText">Seu item foi adicionado com sucesso. Deseja continuar comprando ou finalizar seu
+                    pedido?</p>
+            </div>
+        </div>
+    
+        <div class="cart-feedback-actions">
+            <button type="button" class="cart-feedback-btn secondary" id="cartFeedbackContinue">
+                Continuar comprando
+            </button>
+    
+            <a href="/checkout" class="cart-feedback-btn primary">
+                Ir para checkout
+            </a>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrfToken = tokenMeta ? tokenMeta.getAttribute("content") : "";
 
+            function appendTokenToForm(form) {
+                if (!csrfToken || !form || String(form.method || "GET").toUpperCase() !== "POST") {
+                    return;
+                }
+
+                if (!form.querySelector('input[name="csrf_token"]')) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "csrf_token";
+                    input.value = csrfToken;
+                    form.appendChild(input);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll("form").forEach(appendTokenToForm);
+
+                document.addEventListener("submit", function (event) {
+                    appendTokenToForm(event.target);
+                }, true);
+            });
+
+            if (window.fetch && csrfToken) {
+                const originalFetch = window.fetch.bind(window);
+                window.fetch = function (resource, options = {}) {
+                    const method = String(options.method || "GET").toUpperCase();
+                    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+                        const headers = new Headers(options.headers || {});
+                        if (!headers.has("X-CSRFToken")) {
+                            headers.set("X-CSRFToken", csrfToken);
+                        }
+                        options.headers = headers;
+                    }
+                    return originalFetch(resource, options);
+                };
+            }
+        })();
+    </script>
     <script src="{{ url_for('static', filename='js/mini_cart.js') }}"></script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const accountMenuToggle = document.getElementById("accountMenuToggle");
             const accountMenuDropdown = document.getElementById("accountMenuDropdown");
+
+            const miniCartWrapper = document.getElementById("miniCartWrapper");
+            const miniCartToggle = document.getElementById("miniCartToggle");
+            const miniCartDropdown = document.getElementById("miniCartDropdown");
+            const miniCartOverlay = document.getElementById("miniCartOverlay");
+
+            const cartFeedbackToast = document.getElementById("cartFeedbackToast");
+            const cartFeedbackTitle = document.getElementById("cartFeedbackTitle");
+            const cartFeedbackText = document.getElementById("cartFeedbackText");
+            const cartFeedbackContinue = document.getElementById("cartFeedbackContinue");
+            const cartCountBadge = document.getElementById("cartCountBadge");
+
+            let cartToastTimer = null;
+
+            function ajustarOffsetHeader() {
+                const header = document.querySelector(".site-header");
+                if (!header) return;
+
+                const altura = Math.ceil(header.offsetHeight);
+                document.documentElement.style.setProperty("--header-height", `${altura}px`);
+            }
+
+            function abrirMiniCart() {
+                if (!miniCartDropdown) return;
+
+                miniCartDropdown.classList.add("mini-cart-enhanced-open");
+                miniCartDropdown.classList.add("active");
+
+                if (miniCartOverlay) {
+                    miniCartOverlay.classList.add("active");
+                }
+
+                document.body.classList.add("body-cart-open");
+            }
+
+            function fecharMiniCart() {
+                if (!miniCartDropdown) return;
+
+                miniCartDropdown.classList.remove("mini-cart-enhanced-open");
+                miniCartDropdown.classList.remove("active");
+
+                if (miniCartOverlay) {
+                    miniCartOverlay.classList.remove("active");
+                }
+
+                document.body.classList.remove("body-cart-open");
+            }
+
+            function mostrarToastCarrinho(titulo, texto) {
+                if (!cartFeedbackToast) return;
+
+                if (cartFeedbackTitle && titulo) {
+                    cartFeedbackTitle.textContent = titulo;
+                }
+
+                if (cartFeedbackText && texto) {
+                    cartFeedbackText.textContent = texto;
+                }
+
+                cartFeedbackToast.classList.add("show");
+
+                clearTimeout(cartToastTimer);
+                cartToastTimer = setTimeout(() => {
+                    cartFeedbackToast.classList.remove("show");
+                }, 4500);
+            }
+
+            function esconderToastCarrinho() {
+                if (!cartFeedbackToast) return;
+                cartFeedbackToast.classList.remove("show");
+            }
+
+            function animarBadgeCarrinho() {
+                if (!cartCountBadge) return;
+
+                cartCountBadge.classList.remove("cart-bounce");
+                void cartCountBadge.offsetWidth;
+                cartCountBadge.classList.add("cart-bounce");
+            }
 
             if (accountMenuToggle && accountMenuDropdown) {
                 accountMenuToggle.addEventListener("click", function (e) {
@@ -337,26 +733,111 @@
                 accountMenuDropdown.addEventListener("click", function (e) {
                     e.stopPropagation();
                 });
+            }
 
-                document.addEventListener("click", function (e) {
-                    if (
-                        !accountMenuToggle.contains(e.target) &&
-                        !accountMenuDropdown.contains(e.target)
-                    ) {
-                        accountMenuToggle.classList.remove("active");
-                        accountMenuDropdown.classList.remove("active");
-                        accountMenuToggle.setAttribute("aria-expanded", "false");
-                    }
-                });
+            if (miniCartToggle) {
+                miniCartToggle.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                document.addEventListener("keydown", function (e) {
-                    if (e.key === "Escape") {
-                        accountMenuToggle.classList.remove("active");
-                        accountMenuDropdown.classList.remove("active");
-                        accountMenuToggle.setAttribute("aria-expanded", "false");
+                    if (!miniCartDropdown) return;
+
+                    const aberto = miniCartDropdown.classList.contains("mini-cart-enhanced-open");
+
+                    if (aberto) {
+                        fecharMiniCart();
+                    } else {
+                        abrirMiniCart();
                     }
                 });
             }
+
+            if (miniCartDropdown) {
+                miniCartDropdown.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                });
+            }
+
+            if (miniCartOverlay) {
+                miniCartOverlay.addEventListener("click", function () {
+                    fecharMiniCart();
+                    esconderToastCarrinho();
+                });
+            }
+
+            if (cartFeedbackContinue) {
+                cartFeedbackContinue.addEventListener("click", function () {
+                    esconderToastCarrinho();
+                    fecharMiniCart();
+                });
+            }
+
+            document.addEventListener("click", function (e) {
+                if (
+                    accountMenuToggle &&
+                    accountMenuDropdown &&
+                    !accountMenuToggle.contains(e.target) &&
+                    !accountMenuDropdown.contains(e.target)
+                ) {
+                    accountMenuToggle.classList.remove("active");
+                    accountMenuDropdown.classList.remove("active");
+                    accountMenuToggle.setAttribute("aria-expanded", "false");
+                }
+
+                if (
+                    miniCartWrapper &&
+                    miniCartDropdown &&
+                    miniCartDropdown.classList.contains("mini-cart-enhanced-open") &&
+                    !miniCartWrapper.contains(e.target)
+                ) {
+                    fecharMiniCart();
+                }
+            });
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") {
+                    if (accountMenuToggle && accountMenuDropdown) {
+                        accountMenuToggle.classList.remove("active");
+                        accountMenuDropdown.classList.remove("active");
+                        accountMenuToggle.setAttribute("aria-expanded", "false");
+                    }
+
+                    fecharMiniCart();
+                    esconderToastCarrinho();
+                }
+            });
+
+            ajustarOffsetHeader();
+
+            window.addEventListener("load", ajustarOffsetHeader);
+            window.addEventListener("resize", ajustarOffsetHeader);
+
+            if ("ResizeObserver" in window) {
+                const header = document.querySelector(".site-header");
+                if (header) {
+                    const resizeObserver = new ResizeObserver(() => {
+                        ajustarOffsetHeader();
+                    });
+                    resizeObserver.observe(header);
+                }
+            }
+
+            window.addEventListener("cart:added", function (event) {
+                const detail = event.detail || {};
+                const nome = detail.nome || "Produto";
+                const tamanho = detail.tamanho ? ` Tamanho ${detail.tamanho}.` : "";
+                const mensagem = `${nome} foi adicionado ao carrinho com sucesso.${tamanho}`;
+
+                animarBadgeCarrinho();
+                abrirMiniCart();
+                mostrarToastCarrinho("Produto adicionado ao carrinho", mensagem);
+                ajustarOffsetHeader();
+            });
+
+            window.addEventListener("cart:updated", function () {
+                animarBadgeCarrinho();
+                ajustarOffsetHeader();
+            });
         });
     </script>
 </body>

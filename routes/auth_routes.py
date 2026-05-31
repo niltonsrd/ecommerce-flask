@@ -1,8 +1,14 @@
-import os
-import uuid
-from flask import Blueprint, render_template, request, redirect, session, current_app
-from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, request, redirect, session
 
+from middlewares.auth import login_required, guest_required
+from middlewares.security import (
+    IMAGE_EXTENSIONS,
+    login_rate_limit,
+    reset_login_rate_limit,
+    salvar_upload,
+    validar_arquivo,
+)
+from services.carrinho_service import SESSION_CART_KEY, mesclar_carrinho_anonimo
 from controllers.auth_controller import (
     cadastrar_usuario,
     login_usuario,
@@ -14,93 +20,70 @@ from controllers.auth_controller import (
 auth_bp = Blueprint("auth", __name__)
 
 
-def arquivo_permitido(filename):
-    extensoes_permitidas = {"png", "jpg", "jpeg", "webp"}
-    return (
-        "." in filename and filename.rsplit(".", 1)[1].lower() in extensoes_permitidas
-    )
-
-
 @auth_bp.route("/cadastro", methods=["GET", "POST"])
+@guest_required
 def cadastro():
-
     if request.method == "POST":
         nome = request.form["nome"]
         email = request.form["email"]
         senha = request.form["senha"]
-
         cadastrar_usuario(nome, email, senha)
-
         return redirect("/login")
-
     return render_template("auth/cadastro.html")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@guest_required
+@login_rate_limit
 def login():
+    if request.method == "GET":
+        return render_template("auth/login.html")
 
-    if request.method == "GET" and session.get("usuario_id"):
-        if session.get("usuario_tipo") == "admin":
+    email = request.form["email"]
+    senha = request.form["senha"]
+    usuario = login_usuario(email, senha)
+
+    if usuario:
+        carrinho_anonimo = session.get(SESSION_CART_KEY, {})
+        session.clear()
+        session["usuario_id"] = usuario[0]
+        session["usuario_nome"] = usuario[1]
+        session["usuario_email"] = usuario[2]
+        session["usuario_tipo"] = usuario[4] or "cliente"
+        session["usuario_telefone"] = usuario[6] or ""
+        session["usuario_cpf"] = usuario[7] or ""
+        session["usuario_data_nascimento"] = usuario[8] or ""
+
+        foto_usuario = None
+        if len(usuario) > 5 and isinstance(usuario[5], str):
+            foto_usuario = usuario[5]
+        session["usuario_foto"] = foto_usuario
+
+        if carrinho_anonimo:
+            mesclar_carrinho_anonimo(usuario[0], carrinho_anonimo)
+            session.pop(SESSION_CART_KEY, None)
+
+        reset_login_rate_limit()
+
+        if session["usuario_tipo"] == "admin":
             return redirect("/admin")
         return redirect("/produtos")
 
-    if request.method == "POST":
-        email = request.form["email"]
-        senha = request.form["senha"]
-
-        usuario = login_usuario(email, senha)
-
-        print("USUARIO:", usuario)
-
-        if usuario:
-            for i, campo in enumerate(usuario):
-                print(f"Índice {i}: {campo} | Tipo: {type(campo)}")
-
-            session.clear()
-            session["usuario_id"] = usuario[0]
-            session["usuario_nome"] = usuario[1]
-            session["usuario_email"] = usuario[2]
-            session["usuario_tipo"] = usuario[4] or "cliente"
-            session["usuario_telefone"] = usuario[6] or ""
-            session["usuario_cpf"] = usuario[7] or ""
-            session["usuario_data_nascimento"] = usuario[8] or ""
-
-            foto_usuario = None
-            if len(usuario) > 5 and isinstance(usuario[5], str):
-                foto_usuario = usuario[5]
-
-            session["usuario_foto"] = foto_usuario
-
-            if session["usuario_tipo"] == "admin":
-                return redirect("/admin")
-
-            return redirect("/produtos")
-
-        return "Email ou senha inválidos"
-
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", erro="Email ou senha inválidos")
 
 
-@auth_bp.route("/minha-conta")
+@auth_bp.route("/minha-conta", methods=["GET", "POST"])
+@login_required
 def minha_conta():
-    usuario_id = session.get("usuario_id")
-
-    if not usuario_id:
-        return redirect("/login")
-
-    return render_template(
-        "loja/minha_conta.html",
-        pagina_conta="visao_geral",
-    )
+    if request.method == "POST":
+        return redirect("/configuracoes-conta")
+    return render_template("loja/minha_conta.html", pagina_conta="visao_geral")
 
 
 @auth_bp.route("/configuracoes-conta", methods=["GET", "POST"])
+@login_required
 def configuracoes_conta():
     usuario_id = session.get("usuario_id")
-
-    if not usuario_id:
-        return redirect("/login")
-
     erro = None
     sucesso = None
 
@@ -116,31 +99,25 @@ def configuracoes_conta():
             session["usuario_nome"] = nome
 
             if foto and foto.filename:
-                if not arquivo_permitido(foto.filename):
-                    raise ValueError("Envie uma imagem PNG, JPG, JPEG ou WEBP.")
+                valido, msg_erro = validar_arquivo(foto, allowed_extensions=IMAGE_EXTENSIONS)
+                if not valido:
+                    raise ValueError(msg_erro)
 
-                nome_seguro = secure_filename(foto.filename)
-                extensao = nome_seguro.rsplit(".", 1)[1].lower()
-                nome_arquivo = f"perfil_{usuario_id}_{uuid.uuid4().hex}.{extensao}"
-
-                pasta_destino = os.path.join(
-                    current_app.static_folder, "uploads", "perfis"
+                foto_url = salvar_upload(
+                    foto,
+                    f"perfil_{usuario_id}",
+                    subdiretorio="perfis",
+                    allowed_extensions=IMAGE_EXTENSIONS,
                 )
-                os.makedirs(pasta_destino, exist_ok=True)
 
-                caminho_arquivo = os.path.join(pasta_destino, nome_arquivo)
-                foto.save(caminho_arquivo)
-
-                atualizar_avatar_usuario(usuario_id, f"perfis/{nome_arquivo}")
-                session["usuario_foto"] = f"perfis/{nome_arquivo}"
+                atualizar_avatar_usuario(usuario_id, foto_url)
+                session["usuario_foto"] = foto_url
 
             sucesso = "Seus dados foram atualizados com sucesso."
-
         except ValueError as e:
             erro = str(e)
 
     usuario = obter_usuario_por_id(usuario_id)
-
     return render_template(
         "loja/configuracoes_conta.html",
         pagina_conta="configuracoes",

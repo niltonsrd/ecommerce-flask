@@ -33,7 +33,7 @@
 
                 {% if pedido.cliente_telefone %}
                 <a href="https://wa.me/55{{ pedido.cliente_telefone|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}"
-                    target="_blank" class="pedido-btn pedido-btn-success">
+                    target="_blank" class="pedido-btn2 whatsapp-btn">
                     WhatsApp
                 </a>
                 {% endif %}

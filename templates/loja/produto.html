@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/produto.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <section class="produto-page">
@@ -9,14 +13,14 @@
         
             {% if imagens %}
             <div class="produto-imagem-principal">
-                <img id="imagem-principal-produto" src="/static/uploads/{{ imagens[0][1] }}" alt="{{ produto[1] }}">
+                <img id="imagem-principal-produto" src="/static/uploads/{{ imagens[0].imagem_url }}" alt="{{ produto.nome }}">
             </div>
         
             <div class="produto-thumbs">
                 {% for imagem in imagens %}
                 <button type="button" class="produto-thumb {% if loop.first %}ativo{% endif %}"
-                    data-imagem="/static/uploads/{{ imagem[1] }}" data-alt="{{ produto[1] }}">
-                    <img src="/static/uploads/{{ imagem[1] }}" alt="{{ produto[1] }}">
+                    data-imagem="/static/uploads/{{ imagem.imagem_url }}" data-alt="{{ produto.nome }}">
+                    <img src="/static/uploads/{{ imagem.imagem_url }}" alt="{{ produto.nome }}">
                 </button>
                 {% endfor %}
             </div>
@@ -32,11 +36,11 @@
 
             <span class="section-kicker">Detalhes do produto</span>
 
-            {% if produto[5] %}
-            <p class="produto-marca-premium">{{ produto[5] }}</p>
+            {% if produto.marca %}
+            <p class="produto-marca-premium">{{ produto.marca }}</p>
             {% endif %}
 
-            <h1>{{ produto[1] }}</h1>
+            <h1>{{ produto.nome }}</h1>
 
             <div class="produto-rating-resumo">
                 <div class="produto-stars">
@@ -53,12 +57,12 @@
             </div>
 
             <div class="produto-preco-premium">
-                R$ {{ "%.2f"|format(produto[3]) }}
+                R$ {{ "%.2f"|format(produto.preco) }}
             </div>
 
-            {% if produto[2] %}
+            {% if produto.descricao %}
             <div class="produto-descricao-premium">
-                <p>{{ produto[2] }}</p>
+                <p>{{ produto.descricao }}</p>
             </div>
             {% endif %}
 
@@ -68,32 +72,45 @@
                 <div class="produto-benefit-item">✔ Pronto para pedidos, favoritos e avaliações</div>
             </div>
 
-            <div class="produto-compra-box">
+            <div class="produto-compra-box" id="compra">
                 <h3>Escolha o tamanho</h3>
-
-                <form action="/adicionar-carrinho/{{ produto[0] }}" method="GET" class="produto-form-compra">
-
+            
+                <form action="/carrinho/adicionar" method="POST" class="produto-form-compra produto-card-form"
+                    id="produtoFormCompra" data-nome="{{ produto.nome }}">
+                    <input type="hidden" name="produto_id" value="{{ produto.id }}">
+                    <input type="hidden" name="quantidade" value="1">
+            
                     <div class="produto-form-group">
-                        <label for="tamanho">Tamanho</label>
-                        <select name="tamanho" id="tamanho" required>
+                        <label>Tamanho</label>
+            
+                        <input type="hidden" name="tamanho_id" id="tamanhoSelecionado" required>
+            
+                        <div class="produto-tamanhos-grid">
                             {% for tamanho in tamanhos %}
-                            <option value="{{ tamanho[0] }}">
-                                {{ tamanho[1] }} ({{ tamanho[2] }} disponíveis)
-                            </option>
+                            <button type="button" class="produto-tamanho-btn {% if tamanho.estoque <= 0 %}esgotado{% endif %}"
+                                data-id="{{ tamanho.id }}" {% if tamanho.estoque <=0 %}disabled{% endif %}>
+                                <span class="produto-tamanho-nome">{{ tamanho.nome }}</span>
+                                <small class="produto-tamanho-estoque">
+                                    {% if tamanho.estoque > 0 %}
+                                    {{ tamanho.estoque }} disponíveis
+                                    {% else %}
+                                    Esgotado
+                                    {% endif %}
+                                </small>
+                            </button>
                             {% endfor %}
-                        </select>
+                        </div>
                     </div>
-
+            
                     <div class="produto-form-actions">
                         <button type="submit" class="btn-primary produto-btn-comprar">
                             Adicionar ao Carrinho
                         </button>
-
-                        <a href="/favoritar/{{ produto[0] }}" class="produto-favoritar-btn">
+            
+                        <a href="/favoritar/{{ produto.id }}" class="produto-favoritar-btn">
                             ❤️ Favoritar produto
                         </a>
                     </div>
-
                 </form>
             </div>
 
@@ -163,22 +180,25 @@
         <div class="avaliacao-form-card">
             <h3>Sua avaliação</h3>
 
-            <form action="/produto/{{ produto[0] }}/avaliar" method="POST" class="avaliacao-form">
+            <form action="/produto/{{ produto.id }}/avaliar" method="POST" class="avaliacao-form">
 
                 <div class="filtro-grupo">
-                    <label for="nota">Nota</label>
-                    <select name="nota" id="nota" required>
-                        <option value="1" {% if minha_avaliacao and minha_avaliacao[1]==1 %}selected{% endif %}>1
-                        </option>
-                        <option value="2" {% if minha_avaliacao and minha_avaliacao[1]==2 %}selected{% endif %}>2
-                        </option>
-                        <option value="3" {% if minha_avaliacao and minha_avaliacao[1]==3 %}selected{% endif %}>3
-                        </option>
-                        <option value="4" {% if minha_avaliacao and minha_avaliacao[1]==4 %}selected{% endif %}>4
-                        </option>
-                        <option value="5" {% if minha_avaliacao and minha_avaliacao[1]==5 %}selected{% endif %}>5
-                        </option>
-                    </select>
+                    <label>Sua nota</label>
+                
+                    <input type="hidden" name="nota" id="notaAvaliacao"
+                        value="{% if minha_avaliacao %}{{ minha_avaliacao[1] }}{% endif %}" required>
+                
+                    <div class="avaliacao-stars-input" id="avaliacaoStarsInput">
+                        <button type="button" class="avaliacao-star-btn" data-nota="1" aria-label="1 estrela">★</button>
+                        <button type="button" class="avaliacao-star-btn" data-nota="2" aria-label="2 estrelas">★</button>
+                        <button type="button" class="avaliacao-star-btn" data-nota="3" aria-label="3 estrelas">★</button>
+                        <button type="button" class="avaliacao-star-btn" data-nota="4" aria-label="4 estrelas">★</button>
+                        <button type="button" class="avaliacao-star-btn" data-nota="5" aria-label="5 estrelas">★</button>
+                    </div>
+                
+                    <small class="avaliacao-stars-texto" id="avaliacaoStarsTexto">
+                        Clique nas estrelas para definir sua nota
+                    </small>
                 </div>
 
                 <div class="filtro-grupo">
@@ -234,20 +254,123 @@
         const imagemPrincipal = document.getElementById("imagem-principal-produto");
         const thumbs = document.querySelectorAll(".produto-thumb");
 
-        if (!imagemPrincipal || !thumbs.length) return;
+        if (imagemPrincipal && thumbs.length) {
+            thumbs.forEach((thumb) => {
+                thumb.addEventListener("click", function () {
+                    const novaImagem = this.getAttribute("data-imagem");
+                    const novoAlt = this.getAttribute("data-alt");
 
-        thumbs.forEach((thumb) => {
-            thumb.addEventListener("click", function () {
-                const novaImagem = this.getAttribute("data-imagem");
-                const novoAlt = this.getAttribute("data-alt");
+                    imagemPrincipal.src = novaImagem;
+                    imagemPrincipal.alt = novoAlt;
 
-                imagemPrincipal.src = novaImagem;
-                imagemPrincipal.alt = novoAlt;
+                    thumbs.forEach((item) => item.classList.remove("ativo"));
+                    this.classList.add("ativo");
+                });
+            });
+        }
 
-                thumbs.forEach((item) => item.classList.remove("ativo"));
+        const botoesTamanho = document.querySelectorAll(".produto-tamanho-btn:not(.esgotado)");
+        const inputTamanho = document.getElementById("tamanhoSelecionado");
+        const formCompra = document.getElementById("produtoFormCompra");
+
+        botoesTamanho.forEach((botao) => {
+            botao.addEventListener("click", function () {
+                botoesTamanho.forEach((item) => item.classList.remove("ativo"));
                 this.classList.add("ativo");
+                inputTamanho.value = this.dataset.id;
             });
         });
+
+        if (formCompra) {
+            formCompra.addEventListener("submit", function (e) {
+                if (!inputTamanho.value) {
+                    e.preventDefault();
+                    alert("Selecione um tamanho para continuar.");
+                }
+            });
+        }
+
+        const inputNota = document.getElementById("notaAvaliacao");
+        const estrelas = document.querySelectorAll(".avaliacao-star-btn");
+        const textoNota = document.getElementById("avaliacaoStarsTexto");
+
+        function atualizarEstrelas(valor, modo = "ativo") {
+            estrelas.forEach((estrela) => {
+                const notaEstrela = Number(estrela.getAttribute("data-nota"));
+                estrela.classList.remove("ativo", "preview");
+
+                if (notaEstrela <= valor) {
+                    estrela.classList.add(modo);
+                }
+            });
+        }
+
+        function textoNotaPorValor(valor) {
+            const mapa = {
+                1: "1 estrela • Péssimo",
+                2: "2 estrelas • Ruim",
+                3: "3 estrelas • Bom",
+                4: "4 estrelas • Muito bom",
+                5: "5 estrelas • Excelente"
+            };
+
+            return mapa[valor] || "Clique nas estrelas para definir sua nota";
+        }
+
+        if (inputNota && estrelas.length) {
+            const notaInicial = Number(inputNota.value || 0);
+
+            if (notaInicial > 0) {
+                atualizarEstrelas(notaInicial, "ativo");
+                if (textoNota) {
+                    textoNota.textContent = textoNotaPorValor(notaInicial);
+                }
+            }
+
+            estrelas.forEach((estrela) => {
+                estrela.addEventListener("mouseenter", function () {
+                    const valorHover = Number(this.getAttribute("data-nota"));
+                    atualizarEstrelas(valorHover, "preview");
+
+                    if (textoNota) {
+                        textoNota.textContent = textoNotaPorValor(valorHover);
+                    }
+                });
+
+                estrela.addEventListener("click", function () {
+                    const valorSelecionado = Number(this.getAttribute("data-nota"));
+                    inputNota.value = valorSelecionado;
+                    atualizarEstrelas(valorSelecionado, "ativo");
+
+                    if (textoNota) {
+                        textoNota.textContent = textoNotaPorValor(valorSelecionado);
+                    }
+                });
+            });
+
+            const containerEstrelas = document.getElementById("avaliacaoStarsInput");
+
+            if (containerEstrelas) {
+                containerEstrelas.addEventListener("mouseleave", function () {
+                    const valorAtual = Number(inputNota.value || 0);
+                    atualizarEstrelas(valorAtual, "ativo");
+
+                    if (textoNota) {
+                        textoNota.textContent = textoNotaPorValor(valorAtual);
+                    }
+                });
+            }
+
+            const formAvaliacao = document.querySelector(".avaliacao-form");
+            if (formAvaliacao) {
+                formAvaliacao.addEventListener("submit", function (e) {
+                    if (!inputNota.value) {
+                        e.preventDefault();
+                        alert("Selecione uma nota em estrelas para continuar.");
+                    }
+                });
+            }
+        }
     });
 </script>
 

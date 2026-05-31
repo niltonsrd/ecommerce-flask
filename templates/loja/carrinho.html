@@ -8,23 +8,31 @@
 {% block content %}
 
 <section class="account-page">
-    <div class="account-layout">
+    <div class="{% if session.get('usuario_id') %}account-layout{% else %}account-layout carrinho-guest-layout{% endif %}">
 
+        {% if session.get("usuario_id") %}
         <aside class="account-sidebar">
             {% include "loja/_account_sidebar.html" %}
         </aside>
+        {% endif %}
 
         <div class="account-main">
 
             <section class="account-section">
                 <div class="account-section-header">
                     <div>
-                        <span class="section-kicker">Minha conta</span>
+                        <span class="section-kicker">Sua sacola</span>
                         <h2>Meu carrinho</h2>
                         <p class="account-section-description">
                             Confira os itens selecionados antes de seguir para o checkout.
                         </p>
                     </div>
+
+                    {% if itens %}
+                    <form method="POST" action="/carrinho/limpar">
+                        <button type="submit" class="btn-secondary">Limpar carrinho</button>
+                    </form>
+                    {% endif %}
                 </div>
 
                 {% if itens %}
@@ -35,8 +43,8 @@
                         <article class="carrinho-card">
 
                             <div class="carrinho-imagem">
-                                {% if item[7] %}
-                                <img src="/static/uploads/{{ item[7] }}" alt="{{ item[3] }}">
+                                {% if item.imagem %}
+                                <img src="/static/uploads/{{ item.imagem }}" alt="{{ item.nome }}">
                                 {% else %}
                                 <div class="carrinho-sem-imagem">
                                     <span>Sem imagem</span>
@@ -45,30 +53,41 @@
                             </div>
 
                             <div class="carrinho-info">
-                                <h3>{{ item[3] }}</h3>
+                                <h3>{{ item.nome }}</h3>
 
                                 <div class="carrinho-meta">
-                                    <span><strong>Tamanho:</strong> {{ item[6] }}</span>
-                                    <span><strong>Quantidade:</strong> {{ item[5] }}</span>
+                                    <span><strong>Tamanho:</strong> {{ item.tamanho }}</span>
+                                    <span><strong>Estoque:</strong> {{ item.estoque_disponivel }}</span>
                                 </div>
+
+                                <form method="POST" action="/carrinho/quantidade" class="carrinho-qty-form">
+                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                    <label for="quantidade-{{ item.id }}">Quantidade</label>
+                                    <input id="quantidade-{{ item.id }}" type="number" name="quantidade" min="0"
+                                        max="{{ item.estoque_disponivel }}" value="{{ item.quantidade }}">
+                                    <button type="submit" class="btn-secondary">Atualizar</button>
+                                </form>
 
                                 <div class="carrinho-precos">
                                     <p class="preco-unitario">
                                         <span>Preço unitário</span>
-                                        <strong>R$ {{ "%.2f"|format(item[4]) }}</strong>
+                                        <strong>R$ {{ "%.2f"|format(item.preco) }}</strong>
                                     </p>
 
                                     <p class="preco-subtotal">
                                         <span>Subtotal</span>
-                                        <strong>R$ {{ "%.2f"|format(item[4] * item[5]) }}</strong>
+                                        <strong>R$ {{ "%.2f"|format(item.subtotal) }}</strong>
                                     </p>
                                 </div>
                             </div>
 
                             <div class="carrinho-acoes">
-                                <a href="/remover-item/{{ item[0] }}" class="btn-secondary carrinho-remover-btn">
-                                    Remover
-                                </a>
+                                <form method="POST" action="/carrinho/remover">
+                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                    <button type="submit" class="btn-secondary carrinho-remover-btn">
+                                        Remover
+                                    </button>
+                                </form>
                             </div>
 
                         </article>
@@ -90,7 +109,11 @@
 
                             <div class="resumo-actions">
                                 <a href="/produtos" class="btn-secondary">Continuar comprando</a>
-                                <a href="/checkout" class="btn-primary">Continuar para o checkout</a>
+                                {% if session.get("usuario_id") %}
+                                <a href="/checkout" class="btn-primary">Continuar para o Pagamento</a>
+                                {% else %}
+                                <a href="/login" class="btn-primary">Entrar para finalizar</a>
+                                {% endif %}
                             </div>
                         </div>
                     </aside>

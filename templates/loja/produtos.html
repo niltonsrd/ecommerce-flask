@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/produtos.css">
+{% endblock %}
+
 {% block content %}
 
 <section class="produtos-hero">
@@ -24,7 +28,6 @@
             </div>
 
             <form method="GET" action="/produtos" class="filtros-form">
-
                 <div class="filtro-grupo">
                     <label for="q">Buscar</label>
                     <input id="q" type="text" name="q" placeholder="Buscar produto" value="{{ filtro_q or '' }}">
@@ -126,20 +129,21 @@
                         {% set imagens_json = produto.imagens|tojson|safe if produto.imagens else '[]' %}
 
                         {% if produto.imagem %}
-                        <div class="produto-galeria-box" data-produto-id="{{ produto.id }}" data-imagens='{{ imagens_json }}'>
+                        <div class="produto-galeria-box" data-produto-id="{{ produto.id }}"
+                            data-imagens='{{ imagens_json }}'>
                             <a href="/produto/{{ produto.id }}" class="produto-main-image-link">
-                                <img id="imagem-produto-{{ produto.id }}" class="produto-main-image" src="/static/uploads/{{ produto.imagem }}"
-                                    alt="{{ produto.nome }}">
+                                <img id="imagem-produto-{{ produto.id }}" class="produto-main-image"
+                                    src="/static/uploads/{{ produto.imagem }}" alt="{{ produto.nome }}">
                             </a>
-                        
+
                             {% if produto.imagens and produto.imagens|length > 1 %}
-                            <button type="button" class="produto-galeria-seta produto-galeria-seta-esquerda" data-produto-id="{{ produto.id }}"
-                                data-direcao="-1" onclick="clicarSetaGaleria(this)">
+                            <button type="button" class="produto-galeria-seta produto-galeria-seta-esquerda"
+                                data-produto-id="{{ produto.id }}" data-direcao="-1" onclick="clicarSetaGaleria(this)">
                                 <span>&lsaquo;</span>
                             </button>
-                        
-                            <button type="button" class="produto-galeria-seta produto-galeria-seta-direita" data-produto-id="{{ produto.id }}"
-                                data-direcao="1" onclick="clicarSetaGaleria(this)">
+
+                            <button type="button" class="produto-galeria-seta produto-galeria-seta-direita"
+                                data-produto-id="{{ produto.id }}" data-direcao="1" onclick="clicarSetaGaleria(this)">
                                 <span>&rsaquo;</span>
                             </button>
                             {% endif %}
@@ -152,7 +156,8 @@
                         <div class="produto-thumbs" id="thumbs-produto-{{ produto.id }}">
                             {% for img in produto.imagens %}
                             <button type="button" class="produto-thumb-btn {% if loop.first %}ativo{% endif %}"
-                                data-produto-id="{{ produto.id }}" data-imagem="{{ img }}" data-indice="{{ loop.index0 }}">
+                                data-produto-id="{{ produto.id }}" data-imagem="{{ img }}"
+                                data-indice="{{ loop.index0 }}">
                                 <img src="/static/uploads/{{ img }}" alt="{{ produto.nome }}">
                             </button>
                             {% endfor %}
@@ -180,28 +185,36 @@
 
                         <form method="POST" action="/carrinho/adicionar" class="produto-card-form">
                             <input type="hidden" name="produto_id" value="{{ produto.id }}">
+                            <input type="hidden" name="tamanho_id" class="tamanho-id-input" value="">
+                            <input type="hidden" name="quantidade" value="1">
 
-                            <div class="produto-card-opcoes">
-                                <div class="produto-card-campo">
-                                    <label for="tamanho_{{ produto.id }}">Tamanho</label>
-                                    <select name="tamanho_id" id="tamanho_{{ produto.id }}" required>
-                                        <option value="">Selecione</option>
-                                        {% for tamanho in produto.tamanhos %}
-                                        <option value="{{ tamanho.id }}">
-                                            {{ tamanho.nome }} ({{ tamanho.estoque }} disponíveis)
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                            {% if produto.tamanhos and produto.tamanhos|length > 0 %}
+                            <div class="produto-card-tamanhos-preview">
+                                <span class="produto-card-label">Tamanhos</span>
 
-                                <div class="produto-card-campo produto-card-campo-qtd">
-                                    <label for="quantidade_{{ produto.id }}">Qtd</label>
-                                    <input type="number" id="quantidade_{{ produto.id }}" name="quantidade" min="1"
-                                        value="1" required>
+                                <div class="produto-card-tamanhos-lista">
+                                    {% for tamanho in produto.tamanhos[:5] %}
+                                    {% set tamanho_id = tamanho.id if tamanho.id is defined else tamanho[0] %}
+                                    {% set tamanho_nome = tamanho.nome if tamanho.nome is defined else tamanho[1] %}
+                                    {% set tamanho_estoque = tamanho.estoque if tamanho.estoque is defined else
+                                    tamanho[2] %}
+
+                                    <button type="button"
+                                        class="produto-card-tamanho-chip {% if tamanho_estoque <= 0 %}esgotado{% endif %}"
+                                        data-tamanho-id="{{ tamanho_id }}" {% if tamanho_estoque <=0 %}disabled{% endif
+                                        %}>
+                                        {{ tamanho_nome }}
+                                    </button>
+                                    {% endfor %}
                                 </div>
                             </div>
+                            {% else %}
+                            <div class="produto-card-sem-estoque">
+                                Este produto está sem tamanhos disponíveis no momento.
+                            </div>
+                            {% endif %}
 
-                            <div class="produto-card-actions">
+                            <div class="produto-card-actions produto-card-actions-new">
                                 <button type="submit" class="btn-produto btn-produto-main">
                                     Adicionar ao carrinho
                                 </button>
@@ -210,8 +223,8 @@
                                     Ver produto
                                 </a>
 
-                                <a class="btn-produto btn-produto-secondary" href="/favoritos">
-                                    Favoritar
+                                <a class="btn-favorito-inline" href="/favoritar/{{ produto.id }}">
+                                    ❤ Favoritar
                                 </a>
                             </div>
                         </form>
@@ -313,6 +326,31 @@
                 const indice = parseInt(this.dataset.indice || "0");
 
                 atualizarImagemProduto(produtoId, imagem, indice);
+            });
+        });
+
+        const formulariosProduto = document.querySelectorAll(".produto-card-form");
+
+        formulariosProduto.forEach(function (form) {
+            const botoesTamanho = form.querySelectorAll(".produto-card-tamanho-chip:not(.esgotado)");
+            const inputTamanho = form.querySelector(".tamanho-id-input");
+
+            botoesTamanho.forEach(function (botao) {
+                botao.addEventListener("click", function () {
+                    botoesTamanho.forEach(function (item) {
+                        item.classList.remove("ativo");
+                    });
+
+                    this.classList.add("ativo");
+                    inputTamanho.value = this.getAttribute("data-tamanho-id");
+                });
+            });
+
+            form.addEventListener("submit", function (e) {
+                if (botoesTamanho.length > 0 && !inputTamanho.value) {
+                    e.preventDefault();
+                    alert("Selecione o tamanho do produto.");
+                }
             });
         });
     });

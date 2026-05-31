@@ -21,6 +21,7 @@ def salvar_configuracoes_controller(
     cor_texto_secundario,
     logo_url,
     mostrar_credito,
+    background_url,
 ):
     salvar_configuracoes(
         nome_loja,
@@ -38,4 +39,5 @@ def salvar_configuracoes_controller(
         cor_texto_secundario,
         logo_url,
         mostrar_credito,
+        background_url,
     )

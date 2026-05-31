@@ -39,10 +39,10 @@
                 </div>
                 <div class="admin-form-group">
                     <label for="mostrar_credito" style="margin-top: 10px;">Crédito do desenvolvedor</label>
-                
+
                     <label style="display:flex; align-items:center; gap:10px; font-weight:600; color:var(--text-soft);">
-                        <input type="checkbox" name="mostrar_credito" id="mostrar_credito" value="1" {% if config and config[15]
-                            %}checked{% endif %} style="width:auto; min-width:auto;">
+                        <input type="checkbox" name="mostrar_credito" id="mostrar_credito" value="1" {% if config and
+                            config[15] %}checked{% endif %} style="width:auto; min-width:auto;">
                         Mostrar crédito do desenvolvedor no rodapé do site
                     </label>
                 </div>
@@ -86,7 +86,7 @@
                     <h2>Tema da loja</h2>
                     <p>Essas opções controlam a identidade visual principal do site.</p>
                 </div>
-            
+
                 <div class="config-colors config-colors-extended">
                     <div class="admin-form-group color-field">
                         <label for="cor_primaria">Cor primária</label>
@@ -98,7 +98,7 @@
                             </span>
                         </div>
                     </div>
-            
+
                     <div class="admin-form-group color-field">
                         <label for="cor_secundaria">Cor secundária</label>
                         <div class="color-input-wrap">
@@ -109,7 +109,7 @@
                             </span>
                         </div>
                     </div>
-            
+
                     <div class="admin-form-group color-field">
                         <label for="cor_fundo">Cor de fundo</label>
                         <div class="color-input-wrap">
@@ -120,7 +120,7 @@
                             </span>
                         </div>
                     </div>
-            
+
                     <div class="admin-form-group color-field">
                         <label for="cor_fundo_secundario">Cor de fundo secundária</label>
                         <div class="color-input-wrap">
@@ -131,7 +131,7 @@
                             </span>
                         </div>
                     </div>
-            
+
                     <div class="admin-form-group color-field">
                         <label for="cor_texto">Cor do texto principal</label>
                         <div class="color-input-wrap">
@@ -142,7 +142,7 @@
                             </span>
                         </div>
                     </div>
-            
+
                     <div class="admin-form-group color-field">
                         <label for="cor_texto_secundario">Cor do texto secundário</label>
                         <div class="color-input-wrap">
@@ -154,21 +154,53 @@
                         </div>
                     </div>
                 </div>
-            
-                <div class="admin-form-group logo-upload-group">
-                    <label for="logo">Logo da loja</label>
-                    <input type="file" name="logo" id="logo" accept="image/*">
-                    {% if config and config[14] %}
-                    <div class="logo-preview-box">
-                        <img src="{{ url_for('static', filename='uploads/' + config[14]) }}" alt="Logo atual"
-                            class="logo-preview-admin">
+
+                <div class="upload-grid">
+                    <div class="admin-form-group upload-card">
+                        <div class="upload-card-header">
+                            <label for="logo">Logo da loja</label>
+                            <p>Imagem usada no header e identidade visual da loja.</p>
+                        </div>
+
+                        <input type="file" name="logo" id="logo" accept="image/*" class="upload-input">
+
+                        {% if config and config[14] %}
+                        <div class="upload-preview-box upload-preview-logo">
+                            <img src="{{ url_for('static', filename='uploads/' + config[14]) }}"
+                                alt="Logo atual da loja" class="upload-preview-image">
+                        </div>
+                        {% else %}
+                        <div class="upload-preview-box upload-preview-logo upload-preview-empty">
+                            <span>Sem logo cadastrada</span>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+
+                    <div class="admin-form-group upload-card">
+                        <div class="upload-card-header">
+                            <label for="background">Imagem de Fundo da Loja</label>
+                            <p>Imagem exibida no fundo da loja. Se não houver imagem, o fundo atual continua
+                                normalmente.</p>
+                        </div>
+
+                        <input type="file" name="background" id="background" accept="image/*" class="upload-input">
+
+                        {% if config and config|length > 16 and config[16] %}
+                        <div class="upload-preview-box upload-preview-background">
+                            <img src="{{ url_for('static', filename='uploads/' + config[16]) }}"
+                                alt="Imagem de fundo atual da loja" class="upload-preview-image">
+                        </div>
+                        {% else %}
+                        <div class="upload-preview-box upload-preview-background upload-preview-empty">
+                            <span>Sem background cadastrado</span>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-            
+
                 <div class="theme-preview">
                     <span class="theme-preview-label">Prévia do tema</span>
-                
+
                     <div class="theme-preview-card" id="themePreviewCard" style="
                             --preview-primary: {{ config[6] if config and config[6] else '#6366f1' }};
                             --preview-secondary: {{ config[7] if config and config[7] else '#a855f7' }};
@@ -177,36 +209,37 @@
                             --preview-text: {{ config[12] if config and config[12] else '#f8fafc' }};
                             --preview-muted: {{ config[13] if config and config[13] else '#94a3b8' }};
                         ">
-                
+
                         <div class="theme-preview-browserbar">
                             <span></span>
                             <span></span>
                             <span></span>
                         </div>
-                
+
                         <div class="theme-preview-header">
                             <div class="theme-preview-topbar">
                                 <div class="theme-preview-brand">
                                     <div class="theme-preview-brand-logo">
                                         {% if logo_url %}
-                                        <img src="{{ url_for('static', filename='uploads/' + logo_url) }}" alt="Logo preview">
+                                        <img src="{{ url_for('static', filename='uploads/' + logo_url) }}"
+                                            alt="Logo preview">
                                         {% else %}
                                         <span>Logo</span>
                                         {% endif %}
                                     </div>
                                 </div>
-                
+
                                 <div class="theme-preview-search">
                                     <div class="theme-preview-search-input">Buscar produtos...</div>
                                     <div class="theme-preview-search-btn">Buscar</div>
                                 </div>
-                
+
                                 <div class="theme-preview-header-actions">
                                     <div class="theme-preview-cart-pill">
                                         <span>Carrinho</span>
                                         <span class="theme-preview-cart-badge">0</span>
                                     </div>
-                
+
                                     <div class="theme-preview-account-pill">
                                         <div class="theme-preview-account-avatar"></div>
                                         <div class="theme-preview-account-text">
@@ -216,7 +249,7 @@
                                     </div>
                                 </div>
                             </div>
-                
+
                             <div class="theme-preview-nav">
                                 <span>Início</span>
                                 <span>Produtos</span>
@@ -226,19 +259,19 @@
                                 <span>Menor preço</span>
                             </div>
                         </div>
-                
+
                         <div class="theme-preview-body">
                             <div class="theme-preview-hero">
                                 <div class="theme-preview-badge">Preview</div>
                                 <h3>Nova identidade visual da sua loja</h3>
                                 <p>Seu header, navegação, botões e destaques principais seguirão este tema.</p>
-                
+
                                 <div class="theme-preview-body-actions">
                                     <span class="theme-preview-primary-action">Comprar agora</span>
                                     <span class="theme-preview-secondary-action">Ver novidades</span>
                                 </div>
                             </div>
-                
+
                             <div class="theme-preview-product-card">
                                 <div class="theme-preview-product-image"></div>
                                 <div class="theme-preview-product-content">

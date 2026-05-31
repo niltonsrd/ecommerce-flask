@@ -57,12 +57,22 @@ def buscar_produto_por_id(produto_id):
 
     cursor.execute(query, (produto_id,))
 
-    produto = cursor.fetchone()
+    row = cursor.fetchone()
 
     cursor.close()
     conn.close()
 
-    return produto
+    if not row:
+        return None
+
+    return {
+        "id": row[0],
+        "nome": row[1],
+        "descricao": row[2],
+        "preco": float(row[3]),
+        "categoria": row[4],
+        "marca": row[5],
+    }
 
 
 def produtos_por_categoria(categoria_id):
@@ -132,12 +142,20 @@ def buscar_imagens_produto(produto_id):
 
     cursor.execute(query, (produto_id,))
 
-    imagens = cursor.fetchall()
+    rows = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return imagens
+    return [
+        {
+            "id": row[0],
+            "imagem_url": row[1],
+            "principal": row[2],
+            "ordem": row[3],
+        }
+        for row in rows
+    ]
 
 
 def tamanhos_produto(produto_id):
@@ -149,21 +167,28 @@ def tamanhos_produto(produto_id):
     SELECT
         t.id,
         t.nome,
-        e.quantidade
+        GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) AS quantidade
     FROM estoque e
     JOIN tamanhos t ON t.id = e.tamanho_id
     WHERE e.produto_id = %s
-    AND e.quantidade > 0
+    AND GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) > 0
     """
 
     cursor.execute(query, (produto_id,))
 
-    tamanhos = cursor.fetchall()
+    rows = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return tamanhos
+    return [
+        {
+            "id": row[0],
+            "nome": row[1],
+            "estoque": row[2],
+        }
+        for row in rows
+    ]
 
 
 def filtrar_produtos(
@@ -211,7 +236,7 @@ def filtrar_produtos(
         params.append(marca_id)
 
     if tamanho_id:
-        query += " AND e.tamanho_id = %s AND e.quantidade > 0"
+        query += " AND e.tamanho_id = %s AND GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) > 0"
         params.append(tamanho_id)
 
     if preco_min:
@@ -239,6 +264,133 @@ def filtrar_produtos(
 
     cursor.close()
     conn.close()
+
+    return produtos
+
+
+def filtrar_produtos_catalogo(
+    nome=None,
+    categoria_id=None,
+    preco_min=None,
+    preco_max=None,
+    marca_id=None,
+    tamanho_id=None,
+    ordem=None,
+    limite=12,
+    offset=0,
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+    WITH filtrados AS (
+        SELECT DISTINCT
+            p.id,
+            p.nome,
+            p.preco
+        FROM produtos p
+    """
+
+    if tamanho_id:
+        query += " JOIN estoque ef ON ef.produto_id = p.id"
+
+    query += " WHERE p.ativo = TRUE"
+    params = []
+
+    if nome:
+        query += " AND p.nome ILIKE %s"
+        params.append(f"%{nome}%")
+
+    if categoria_id:
+        query += " AND p.categoria_id = %s"
+        params.append(categoria_id)
+
+    if marca_id:
+        query += " AND p.marca_id = %s"
+        params.append(marca_id)
+
+    if tamanho_id:
+        query += """
+        AND ef.tamanho_id = %s
+        AND GREATEST(ef.quantidade - COALESCE(ef.reservado, 0), 0) > 0
+        """
+        params.append(tamanho_id)
+
+    if preco_min:
+        query += " AND p.preco >= %s"
+        params.append(preco_min)
+
+    if preco_max:
+        query += " AND p.preco <= %s"
+        params.append(preco_max)
+
+    if ordem == "menor_preco":
+        query += " ORDER BY p.preco ASC"
+    elif ordem == "maior_preco":
+        query += " ORDER BY p.preco DESC"
+    else:
+        query += " ORDER BY p.id DESC"
+
+    query += """
+        LIMIT %s OFFSET %s
+    )
+    SELECT
+        f.id,
+        f.nome,
+        f.preco,
+        COALESCE(
+            (
+                SELECT pi2.imagem_url
+                FROM produto_imagens pi2
+                WHERE pi2.produto_id = f.id
+                ORDER BY pi2.principal DESC, pi2.ordem ASC, pi2.id ASC
+                LIMIT 1
+            ),
+            ''
+        ) AS imagem,
+        COALESCE(
+            ARRAY_AGG(DISTINCT pi.imagem_url) FILTER (WHERE pi.imagem_url IS NOT NULL),
+            ARRAY[]::VARCHAR[]
+        ) AS imagens,
+        COALESCE(
+            JSON_AGG(
+                DISTINCT JSONB_BUILD_OBJECT(
+                    'id', t.id,
+                    'nome', t.nome,
+                    'estoque', GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0)
+                )
+            ) FILTER (
+                WHERE t.id IS NOT NULL
+                  AND GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) > 0
+            ),
+            '[]'::json
+        ) AS tamanhos
+    FROM filtrados f
+    LEFT JOIN produto_imagens pi ON pi.produto_id = f.id
+    LEFT JOIN estoque e ON e.produto_id = f.id
+    LEFT JOIN tamanhos t ON t.id = e.tamanho_id
+    GROUP BY f.id, f.nome, f.preco
+    """
+
+    params.extend([limite, offset])
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    produtos = []
+    for row in rows:
+        produtos.append(
+            {
+                "id": row[0],
+                "nome": row[1],
+                "preco": float(row[2]),
+                "imagem": row[3] or None,
+                "imagens": list(row[4] or []),
+                "tamanhos": row[5] or [],
+            }
+        )
 
     return produtos
 
@@ -282,7 +434,7 @@ def contar_produtos_filtrados(
         params.append(marca_id)
 
     if tamanho_id:
-        query += " AND e.tamanho_id = %s AND e.quantidade > 0"
+        query += " AND e.tamanho_id = %s AND GREATEST(e.quantidade - COALESCE(e.reservado, 0), 0) > 0"
         params.append(tamanho_id)
 
     if preco_min:

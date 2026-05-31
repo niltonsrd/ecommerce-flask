@@ -1,10 +1,7 @@
-import os
-import uuid
 from gateways.manual_gateway import ManualGateway
+from middlewares.security import salvar_upload
 from repositories import pagamento_repository
-from werkzeug.utils import secure_filename
 from repositories.pagamento_repository import salvar_comprovante_pagamento
-
 
 
 GATEWAY_ATIVO = "MANUAL"
@@ -22,20 +19,15 @@ def enviar_comprovante_pagamento(pedido_id, arquivo, observacao_cliente=None):
     if not arquivo or not arquivo.filename:
         raise Exception("Selecione um arquivo de comprovante.")
 
-    if not arquivo_permitido(arquivo.filename):
-        raise Exception("Formato inválido. Envie PNG, JPG, JPEG ou PDF.")
-
-    nome_seguro = secure_filename(arquivo.filename)
-    extensao = nome_seguro.rsplit(".", 1)[1].lower()
-    nome_final = f"comprovante_pedido_{pedido_id}_{uuid.uuid4().hex}.{extensao}"
-
-    pasta_destino = os.path.join("static", "uploads", "comprovantes")
-    os.makedirs(pasta_destino, exist_ok=True)
-
-    caminho_arquivo = os.path.join(pasta_destino, nome_final)
-    arquivo.save(caminho_arquivo)
-
-    url_salva = f"comprovantes/{nome_final}"
+    try:
+        url_salva = salvar_upload(
+            arquivo,
+            f"comprovante_pedido_{pedido_id}",
+            subdiretorio="comprovantes",
+            allowed_extensions=EXTENSOES_PERMITIDAS,
+        )
+    except ValueError as exc:
+        raise Exception(str(exc)) from exc
 
     salvar_comprovante_pagamento(
         pedido_id=pedido_id,

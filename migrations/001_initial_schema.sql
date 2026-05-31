@@ -1,0 +1,344 @@
+-- Migration 001: Initial Schema
+-- Creates all base tables for the ecommerce platform
+
+CREATE TABLE IF NOT EXISTS configuracoes_loja (
+    id SERIAL PRIMARY KEY,
+    nome_loja VARCHAR(255) DEFAULT '',
+    slogan VARCHAR(500) DEFAULT '',
+    email_contato VARCHAR(255) DEFAULT '',
+    whatsapp VARCHAR(50) DEFAULT '',
+    texto_rodape TEXT DEFAULT '',
+    cor_primaria VARCHAR(7) DEFAULT '#6366f1',
+    cor_secundaria VARCHAR(7) DEFAULT '#a855f7',
+    cidade_loja VARCHAR(100) DEFAULT '',
+    estado_loja VARCHAR(2) DEFAULT '',
+    cor_fundo VARCHAR(7) DEFAULT '#06080f',
+    cor_fundo_secundario VARCHAR(7) DEFAULT '#090d16',
+    cor_texto VARCHAR(7) DEFAULT '#f8fafc',
+    cor_texto_secundario VARCHAR(7) DEFAULT '#94a3b8',
+    logo_url VARCHAR(500) DEFAULT NULL,
+    mostrar_credito BOOLEAN DEFAULT TRUE,
+    background_url VARCHAR(500) DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    tipo VARCHAR(50) DEFAULT 'cliente',
+    tipo_usuario VARCHAR(50) DEFAULT 'cliente',
+    foto VARCHAR(500) DEFAULT NULL,
+    telefone VARCHAR(50) DEFAULT NULL,
+    cpf VARCHAR(14) DEFAULT NULL,
+    data_nascimento DATE DEFAULT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS categorias (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    imagem_url VARCHAR(500) DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS marcas (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tamanhos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS produtos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT DEFAULT '',
+    preco DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    categoria_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
+    marca_id INTEGER REFERENCES marcas(id) ON DELETE SET NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    sku VARCHAR(100) DEFAULT NULL,
+    slug VARCHAR(255) DEFAULT NULL,
+    peso DECIMAL(10, 2) DEFAULT NULL,
+    altura DECIMAL(10, 2) DEFAULT NULL,
+    largura DECIMAL(10, 2) DEFAULT NULL,
+    profundidade DECIMAL(10, 2) DEFAULT NULL,
+    custo DECIMAL(10, 2) DEFAULT NULL,
+    preco_promocional DECIMAL(10, 2) DEFAULT NULL,
+    meta_description VARCHAR(500) DEFAULT NULL,
+    tags TEXT DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS produto_imagens (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    imagem_url VARCHAR(500) NOT NULL,
+    principal BOOLEAN DEFAULT FALSE,
+    ordem INTEGER DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS estoque (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    tamanho_id INTEGER NOT NULL REFERENCES tamanhos(id) ON DELETE CASCADE,
+    quantidade INTEGER NOT NULL DEFAULT 0,
+    reservado INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(produto_id, tamanho_id),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS estoque_movimentacoes (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    tamanho_id INTEGER REFERENCES tamanhos(id) ON DELETE SET NULL,
+    tipo VARCHAR(20) NOT NULL,
+    quantidade INTEGER NOT NULL,
+    pedido_id INTEGER DEFAULT NULL,
+    observacao TEXT DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS enderecos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    nome_destinatario VARCHAR(255) NOT NULL,
+    cep VARCHAR(8) NOT NULL,
+    logradouro VARCHAR(255) NOT NULL,
+    numero VARCHAR(20) NOT NULL,
+    complemento VARCHAR(255) DEFAULT NULL,
+    bairro VARCHAR(255) NOT NULL,
+    cidade VARCHAR(255) NOT NULL,
+    estado VARCHAR(2) NOT NULL,
+    referencia VARCHAR(255) DEFAULT NULL,
+    principal BOOLEAN DEFAULT FALSE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS carrinho (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    tamanho_id INTEGER NOT NULL REFERENCES tamanhos(id) ON DELETE CASCADE,
+    quantidade INTEGER NOT NULL DEFAULT 1,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(usuario_id, produto_id, tamanho_id)
+);
+
+CREATE TABLE IF NOT EXISTS cupons (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(50) UNIQUE NOT NULL,
+    tipo VARCHAR(20) NOT NULL DEFAULT 'fixo',
+    valor DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    valor_minimo DECIMAL(10, 2) DEFAULT NULL,
+    limite_uso INTEGER DEFAULT NULL,
+    usos_atuais INTEGER DEFAULT 0,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_inicio TIMESTAMP DEFAULT NULL,
+    data_fim TIMESTAMP DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS modalidades_entrega (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    tipo VARCHAR(50) NOT NULL DEFAULT 'NACIONAL',
+    cidade VARCHAR(100) DEFAULT NULL,
+    estado VARCHAR(2) DEFAULT NULL,
+    valor DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    prazo_horas INTEGER DEFAULT NULL,
+    prazo_dias INTEGER DEFAULT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS fretes (
+    id SERIAL PRIMARY KEY,
+    nome_regiao VARCHAR(255) NOT NULL,
+    cep_inicio VARCHAR(8) NOT NULL,
+    cep_fim VARCHAR(8) NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    prazo_dias INTEGER NOT NULL DEFAULT 1,
+    ativo BOOLEAN DEFAULT TRUE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pedidos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    endereco_id INTEGER REFERENCES enderecos(id) ON DELETE SET NULL,
+    cupom_id INTEGER REFERENCES cupons(id) ON DELETE SET NULL,
+    subtotal DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    desconto DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    valor_frete DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    valor_total DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    modalidade_entrega_id INTEGER REFERENCES modalidades_entrega(id) ON DELETE SET NULL,
+    modalidade_entrega VARCHAR(255) DEFAULT NULL,
+    prazo_entrega VARCHAR(100) DEFAULT NULL,
+    forma_pagamento VARCHAR(50) NOT NULL DEFAULT 'PIX',
+    observacoes TEXT DEFAULT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'AGUARDANDO_PAGAMENTO',
+    data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pedido_itens (
+    id SERIAL PRIMARY KEY,
+    pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    tamanho_id INTEGER REFERENCES tamanhos(id) ON DELETE SET NULL,
+    quantidade INTEGER NOT NULL DEFAULT 1,
+    preco DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pagamentos (
+    id SERIAL PRIMARY KEY,
+    pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+    metodo VARCHAR(50) NOT NULL DEFAULT 'PIX',
+    valor DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDENTE',
+    gateway VARCHAR(50) DEFAULT 'MANUAL',
+    transacao_id VARCHAR(255) DEFAULT NULL,
+    qr_code TEXT DEFAULT NULL,
+    codigo_pix TEXT DEFAULT NULL,
+    comprovante_url VARCHAR(500) DEFAULT NULL,
+    comprovante_enviado_em TIMESTAMP DEFAULT NULL,
+    observacao_cliente TEXT DEFAULT NULL,
+    detalhes TEXT DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS favoritos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(usuario_id, produto_id)
+);
+
+CREATE TABLE IF NOT EXISTS avaliacoes (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    nota INTEGER NOT NULL CHECK (nota >= 1 AND nota <= 5),
+    comentario TEXT DEFAULT NULL,
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(produto_id, usuario_id)
+);
+
+CREATE TABLE IF NOT EXISTS banners (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(255) DEFAULT NULL,
+    subtitulo VARCHAR(500) DEFAULT NULL,
+    imagem_url VARCHAR(500) DEFAULT NULL,
+    link VARCHAR(500) DEFAULT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    ordem INTEGER DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS home_blocos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    tipo_bloco VARCHAR(50) DEFAULT 'destaque',
+    layout VARCHAR(50) DEFAULT 'full',
+    titulo VARCHAR(500) DEFAULT NULL,
+    subtitulo TEXT DEFAULT NULL,
+    descricao TEXT DEFAULT NULL,
+    imagem_url VARCHAR(500) DEFAULT NULL,
+    texto_botao VARCHAR(255) DEFAULT NULL,
+    link_botao VARCHAR(500) DEFAULT NULL,
+    texto_botao_secundario VARCHAR(255) DEFAULT NULL,
+    link_botao_secundario VARCHAR(500) DEFAULT NULL,
+    cor_fundo VARCHAR(7) DEFAULT NULL,
+    cor_texto VARCHAR(7) DEFAULT NULL,
+    alinhamento_texto VARCHAR(20) DEFAULT 'center',
+    ordem INTEGER DEFAULT 0,
+    ativo BOOLEAN DEFAULT TRUE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Compatibility guards for databases created before this migration existed.
+ALTER TABLE configuracoes_loja
+    ADD COLUMN IF NOT EXISTS background_url VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS tipo_usuario VARCHAR(50) DEFAULT 'cliente',
+    ADD COLUMN IF NOT EXISTS foto VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS telefone VARCHAR(50) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS cpf VARCHAR(14) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS data_nascimento DATE DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE produtos
+    ADD COLUMN IF NOT EXISTS sku VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS slug VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS peso DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS altura DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS largura DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS profundidade DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS custo DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS preco_promocional DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS meta_description VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE estoque
+    ADD COLUMN IF NOT EXISTS reservado INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE pedidos
+    ADD COLUMN IF NOT EXISTS data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE pagamentos
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_produtos_categoria ON produtos(categoria_id);
+CREATE INDEX IF NOT EXISTS idx_produtos_marca ON produtos(marca_id);
+CREATE INDEX IF NOT EXISTS idx_produtos_ativo ON produtos(ativo);
+CREATE INDEX IF NOT EXISTS idx_produtos_preco ON produtos(preco);
+CREATE INDEX IF NOT EXISTS idx_produtos_slug ON produtos(slug);
+CREATE INDEX IF NOT EXISTS idx_produto_imagens_produto ON produto_imagens(produto_id);
+CREATE INDEX IF NOT EXISTS idx_estoque_produto ON estoque(produto_id);
+CREATE INDEX IF NOT EXISTS idx_estoque_tamanho ON estoque(tamanho_id);
+CREATE INDEX IF NOT EXISTS idx_estoque_movimentacoes_produto ON estoque_movimentacoes(produto_id);
+CREATE INDEX IF NOT EXISTS idx_carrinho_usuario ON carrinho(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pedidos_usuario ON pedidos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pedidos_status ON pedidos(status);
+CREATE INDEX IF NOT EXISTS idx_pedidos_data ON pedidos(data_pedido);
+CREATE INDEX IF NOT EXISTS idx_pedido_itens_pedido ON pedido_itens(pedido_id);
+CREATE INDEX IF NOT EXISTS idx_pagamentos_pedido ON pagamentos(pedido_id);
+CREATE INDEX IF NOT EXISTS idx_enderecos_usuario ON enderecos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_favoritos_usuario ON favoritos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_avaliacoes_produto ON avaliacoes(produto_id);
+CREATE INDEX IF NOT EXISTS idx_cupons_codigo ON cupons(codigo);
+CREATE INDEX IF NOT EXISTS idx_fretes_cep ON fretes(cep_inicio, cep_fim);
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);

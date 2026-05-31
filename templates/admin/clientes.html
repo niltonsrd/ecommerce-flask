@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="admin-page">
+    <div class="admin-header">
+        <div>
+            <span class="section-kicker">Admin</span>
+            <h1>Clientes</h1>
+            <p>Visão consolidada de cadastro, pedidos e valor comprado.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Contato</th>
+                    <th>Tipo</th>
+                    <th>Pedidos</th>
+                    <th>Total comprado</th>
+                    <th>Cadastro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>
+                        <strong>{{ cliente.nome }}</strong>
+                        <span>#{{ cliente.id }}</span>
+                    </td>
+                    <td>
+                        <div>{{ cliente.email }}</div>
+                        <small>{{ cliente.telefone or "Sem telefone" }}</small>
+                    </td>
+                    <td>{{ cliente.tipo|capitalize }}</td>
+                    <td>{{ cliente.total_pedidos }}</td>
+                    <td>R$ {{ "%.2f"|format(cliente.valor_total) }}</td>
+                    <td>{{ cliente.data_criacao.strftime("%d/%m/%Y") if cliente.data_criacao else "-" }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">Nenhum cliente cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

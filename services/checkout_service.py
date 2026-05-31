@@ -1,7 +1,6 @@
 from repositories import checkout_repository
 from services import endereco_service, pagamento_service
 from controllers.configuracao_controller import obter_configuracoes_controller
-from services.pagamento_service import criar_pagamento_inicial
 
 
 def calcular_desconto(cupom, subtotal):
@@ -167,35 +166,35 @@ def processar_checkout(usuario_id, form_data):
     if valor_total < 0:
         valor_total = 0.0
 
-    pedido_id = checkout_repository.criar_pedido(
+    gateway = pagamento_service.obter_gateway()
+    pagamento = gateway.criar_pagamento(
+        pedido_id=None,
+        metodo=forma_pagamento,
+        valor=valor_total,
+    )
+
+    dados_pedido = {
+        "endereco_id": endereco_id_final,
+        "cupom_id": cupom_id,
+        "subtotal": subtotal,
+        "desconto": desconto,
+        "valor_frete": valor_frete,
+        "valor_total": valor_total,
+        "modalidade_entrega_id": modalidade["id"],
+        "modalidade_entrega": modalidade["nome"],
+        "prazo_entrega": modalidade["prazo"],
+        "forma_pagamento": forma_pagamento,
+        "observacoes": observacoes,
+    }
+
+    pedido_id, pagamento_id = checkout_repository.criar_pedido_completo(
         usuario_id=usuario_id,
-        endereco_id=endereco_id_final,
-        cupom_id=cupom_id,
-        subtotal=subtotal,
-        desconto=desconto,
-        valor_frete=valor_frete,
-        valor_total=valor_total,
-        modalidade_entrega_id=modalidade["id"],
-        modalidade_entrega=modalidade["nome"],
-        prazo_entrega=modalidade["prazo"],
-        forma_pagamento=forma_pagamento,
-        observacoes=observacoes,
+        itens=itens,
+        dados_pedido=dados_pedido,
+        dados_pagamento=pagamento,
     )
-
-    for item in itens:
-        checkout_repository.adicionar_item_pedido(
-            pedido_id=pedido_id,
-            produto_id=item["produto_id"],
-            tamanho_id=item["tamanho_id"],
-            quantidade=item["quantidade"],
-            preco=item["preco"],
-        )
-
-    pagamento = pagamento_service.criar_pagamento_inicial(
-        pedido_id=pedido_id, metodo=forma_pagamento, valor=valor_total
-    )
-
-    checkout_repository.limpar_carrinho_usuario(usuario_id)
+    pagamento["id"] = pagamento_id
+    pagamento["pedido_id"] = pedido_id
 
     pedido = checkout_repository.buscar_pedido_por_id(pedido_id, usuario_id)
 

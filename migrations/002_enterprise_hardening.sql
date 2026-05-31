@@ -1,0 +1,115 @@
+-- Migration 002: hardening, stock reservation and SaaS catalog fields
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    id SERIAL PRIMARY KEY,
+    filename VARCHAR(255) UNIQUE NOT NULL,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE configuracoes_loja
+    ADD COLUMN IF NOT EXISTS background_url VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS tipo_usuario VARCHAR(50) DEFAULT 'cliente',
+    ADD COLUMN IF NOT EXISTS foto VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS telefone VARCHAR(50) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS cpf VARCHAR(14) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS data_nascimento DATE DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE categorias
+    ADD COLUMN IF NOT EXISTS imagem_url VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE produtos
+    ADD COLUMN IF NOT EXISTS sku VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS slug VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS peso DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS altura DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS largura DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS profundidade DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS custo DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS preco_promocional DECIMAL(10, 2) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS meta_description VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE estoque
+    ADD COLUMN IF NOT EXISTS reservado INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS estoque_movimentacoes (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    tamanho_id INTEGER REFERENCES tamanhos(id) ON DELETE SET NULL,
+    tipo VARCHAR(20) NOT NULL,
+    quantidade INTEGER NOT NULL,
+    pedido_id INTEGER DEFAULT NULL,
+    observacao TEXT DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE carrinho
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'carrinho_usuario_produto_tamanho_key'
+    ) THEN
+        ALTER TABLE carrinho
+            ADD CONSTRAINT carrinho_usuario_produto_tamanho_key
+            UNIQUE (usuario_id, produto_id, tamanho_id);
+    END IF;
+END $$;
+
+ALTER TABLE pedidos
+    ADD COLUMN IF NOT EXISTS subtotal DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS desconto DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS valor_frete DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS modalidade_entrega_id INTEGER REFERENCES modalidades_entrega(id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS modalidade_entrega VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS prazo_entrega VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(50) NOT NULL DEFAULT 'PIX',
+    ADD COLUMN IF NOT EXISTS observacoes TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE pagamentos
+    ADD COLUMN IF NOT EXISTS gateway VARCHAR(50) DEFAULT 'MANUAL',
+    ADD COLUMN IF NOT EXISTS transacao_id VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS qr_code TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS codigo_pix TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS comprovante_url VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS comprovante_enviado_em TIMESTAMP DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS observacao_cliente TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS detalhes TEXT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+CREATE INDEX IF NOT EXISTS idx_produtos_categoria ON produtos(categoria_id);
+CREATE INDEX IF NOT EXISTS idx_produtos_marca ON produtos(marca_id);
+CREATE INDEX IF NOT EXISTS idx_produtos_ativo ON produtos(ativo);
+CREATE INDEX IF NOT EXISTS idx_produtos_preco ON produtos(preco);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_sku_unique
+    ON produtos(sku)
+    WHERE sku IS NOT NULL AND sku <> '';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_slug_unique
+    ON produtos(slug)
+    WHERE slug IS NOT NULL AND slug <> '';
+
+CREATE INDEX IF NOT EXISTS idx_produto_imagens_produto ON produto_imagens(produto_id);
+CREATE INDEX IF NOT EXISTS idx_estoque_produto_tamanho ON estoque(produto_id, tamanho_id);
+CREATE INDEX IF NOT EXISTS idx_estoque_movimentacoes_pedido ON estoque_movimentacoes(pedido_id);
+CREATE INDEX IF NOT EXISTS idx_carrinho_usuario ON carrinho(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pedidos_usuario ON pedidos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pedidos_status ON pedidos(status);
+CREATE INDEX IF NOT EXISTS idx_pedidos_data ON pedidos(data_pedido);
+CREATE INDEX IF NOT EXISTS idx_pagamentos_pedido ON pagamentos(pedido_id);
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);

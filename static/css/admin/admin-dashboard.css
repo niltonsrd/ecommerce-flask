@@ -1169,7 +1169,7 @@ body.admin-body {
 
 .mini-btn:hover {
     transform: translateY(-1px);
-    background: linear-gradient(180deg, #ffffff 0%, #ece5d9 100%);
+    background: linear-gradient(180deg, #ffffff 0%, #dfbc7f 100%);
     border-color: #cabfae;
     box-shadow: 0 8px 16px rgba(16, 16, 16, 0.07);
     color: #111111;
@@ -1198,10 +1198,35 @@ body.admin-body {
 }
 
 .whatsapp-btn:hover {
-    background: linear-gradient(180deg, #f8fffb 0%, #dbf4e6 100%);
+    background: linear-gradient(180deg, #f8fffb 0%, #054403 100%);
     border-color: #9fd3b3;
-    color: #14532d;
+    color: #07ee63;
     box-shadow: 0 8px 16px rgba(22, 101, 52, 0.12);
+}
+
+.quick-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    background: linear-gradient(180deg, #ffffff 0%, #f6f1e8 100%);
+    border: 1px solid #ddd5c8;
+    box-shadow: 0 4px 14px rgba(16, 16, 16, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.quick-actions a:hover {
+    transform: translateY(-1px);
+    background: #dfbc7f;
+    border-color: #cabfae;
+    box-shadow: 0 8px 18px rgba(16, 16, 16, 0.08);
+    cursor: pointer;
 }
 
 .status-badge {
