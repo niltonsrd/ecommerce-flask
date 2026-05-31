@@ -30,3 +30,4 @@ static/uploads/*
 !static/uploads/*.avif
 static/uploads/perfis/*
 static/uploads/comprovantes/*
+public/static/

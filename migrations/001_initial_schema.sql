@@ -170,8 +170,8 @@ CREATE TABLE IF NOT EXISTS modalidades_entrega (
 CREATE TABLE IF NOT EXISTS fretes (
     id SERIAL PRIMARY KEY,
     nome_regiao VARCHAR(255) NOT NULL,
-    cep_inicio VARCHAR(8) NOT NULL,
-    cep_fim VARCHAR(8) NOT NULL,
+    cep_inicio VARCHAR(20) NOT NULL,
+    cep_fim VARCHAR(20) NOT NULL,
     valor DECIMAL(10, 2) NOT NULL DEFAULT 0,
     prazo_dias INTEGER NOT NULL DEFAULT 1,
     ativo BOOLEAN DEFAULT TRUE,
